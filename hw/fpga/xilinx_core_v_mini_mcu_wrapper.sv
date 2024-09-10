@@ -140,13 +140,22 @@ module xilinx_core_v_mini_mcu_wrapper
       .im2col_spc_done_int_o(im2col_spc_done_int_o)
   );
 
-  obi_resp_t zero_array[DMA_NUM_MASTER_PORTS-1:0];
+  obi_resp_t zero_array_resp[DMA_NUM_MASTER_PORTS-1:0];
+  obi_resp_t zero_array_req[DMA_NUM_MASTER_PORTS-1:0];
 
   initial begin
     for (int i = 0; i < DMA_NUM_MASTER_PORTS; i++) begin
-      zero_array[i].gnt = 1'b0;
-      zero_array[i].rvalid = 1'b0;
-      zero_array[i].rdata = 32'b0;;
+      zero_array_resp[i].gnt = 1'b0;
+      zero_array_resp[i].rvalid = 1'b0;
+      zero_array_resp[i].rdata = 32'b0;;
+    end
+    
+    for (int i = 0; i < DMA_NUM_MASTER_PORTS; i++) begin
+      zero_array_req[i].req = 1'b0;
+      zero_array_req[i].we = 1'b0;
+      zero_array_req[i].be = 4'b0;
+      zero_array_req[i].addr = 32'b0;
+      zero_array_req[i].wdata = 32'b0;;
     end
   end
 
@@ -182,11 +191,11 @@ module xilinx_core_v_mini_mcu_wrapper
       .ext_debug_master_req_o(),
       .ext_debug_master_resp_i('0),
       .ext_dma_read_req_o(),
-      .ext_dma_read_resp_i('0),
+      .ext_dma_read_resp_i(zero_array_resp),
       .ext_dma_write_req_o(),
-      .ext_dma_write_resp_i('0),
+      .ext_dma_write_resp_i(zero_array_resp),
       .ext_dma_addr_req_o(),
-      .ext_dma_addr_resp_i('0),
+      .ext_dma_addr_resp_i(zero_array_resp),
       .ext_peripheral_slave_req_o(ext_periph_slv_req),
       .ext_peripheral_slave_resp_i(ext_periph_slv_resp),
       .ext_ao_peripheral_req_i(ext_ao_peripheral_req),
