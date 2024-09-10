@@ -144,7 +144,9 @@ module xilinx_core_v_mini_mcu_wrapper
 
   initial begin
     for (int i = 0; i < DMA_NUM_MASTER_PORTS; i++) begin
-      zero_array[i] = '0;
+      zero_array[i].gnt = 1'b0;
+      zero_array[i].rvalid = 1'b0;
+      zero_array[i].rdata = 32'b0;;
     end
   end
 
@@ -180,11 +182,11 @@ module xilinx_core_v_mini_mcu_wrapper
       .ext_debug_master_req_o(),
       .ext_debug_master_resp_i('0),
       .ext_dma_read_req_o(),
-      .ext_dma_read_resp_i(zero_array),
+      .ext_dma_read_resp_i('0),
       .ext_dma_write_req_o(),
-      .ext_dma_write_resp_i(zero_array),
+      .ext_dma_write_resp_i('0),
       .ext_dma_addr_req_o(),
-      .ext_dma_addr_resp_i(zero_array),
+      .ext_dma_addr_resp_i('0),
       .ext_peripheral_slave_req_o(ext_periph_slv_req),
       .ext_peripheral_slave_resp_i(ext_periph_slv_resp),
       .ext_ao_peripheral_req_i(ext_ao_peripheral_req),
