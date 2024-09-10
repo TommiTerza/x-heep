@@ -31,7 +31,7 @@
 #define PRINTF(...)
 #endif
 
-#define SOURCE_BUFFER_SIZE_32b 5
+#define SOURCE_BUFFER_SIZE_32b 69
 #define SOURCE_BUFFER_SIZE_16b 5
 #define SOURCE_BUFFER_SIZE_8b 5
 #define CONST_VALUE_32B 123
