@@ -407,6 +407,8 @@ module im2col_spc
     dma_if_loaded = 1'b0;
     dma_regintfc_start = 1'b0;
     fifo_pop = 1'b0;
+    dma_wdata = '0;
+    dma_addr = '0;
 
     unique case (dma_if_cu_load_d)
       IDLE_IF_LOAD: begin
