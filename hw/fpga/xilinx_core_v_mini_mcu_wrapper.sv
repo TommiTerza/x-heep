@@ -140,7 +140,7 @@ module xilinx_core_v_mini_mcu_wrapper
       .im2col_spc_done_int_o(im2col_spc_done_int_o)
   );
 
-  obi_resp_t zero_array_resp[DMA_NUM_MASTER_PORTS-1:0];
+  obi_resp_t [DMA_NUM_MASTER_PORTS-1:0]zero_array_resp;
 
   initial begin
     for (int i = 0; i < DMA_NUM_MASTER_PORTS; i++) begin
