@@ -117,8 +117,8 @@ module xilinx_core_v_mini_mcu_wrapper
 
 
   // External SPC interface signals
-  reg_req_t [0:0]ext_ao_peripheral_req;
-  reg_rsp_t [0:0]ext_ao_peripheral_resp;
+  reg_req_t [0:0] ext_ao_peripheral_req;
+  reg_rsp_t [0:0] ext_ao_peripheral_resp;
   logic [core_v_mini_mcu_pkg::DMA_CH_NUM-1:0] dma_busy;
   reg_pkg::reg_req_t ext_periph_slv_req;
   reg_pkg::reg_rsp_t ext_periph_slv_rsp;
@@ -140,13 +140,13 @@ module xilinx_core_v_mini_mcu_wrapper
       .im2col_spc_done_int_o(im2col_spc_done_int_o)
   );
 
-  obi_resp_t [DMA_NUM_MASTER_PORTS-1:0]zero_array_resp;
+  obi_resp_t [DMA_NUM_MASTER_PORTS-1:0] zero_array_resp;
 
   initial begin
     for (int i = 0; i < DMA_NUM_MASTER_PORTS; i++) begin
       zero_array_resp[i].gnt = 1'b0;
       zero_array_resp[i].rvalid = 1'b0;
-      zero_array_resp[i].rdata = 32'b0;;
+      zero_array_resp[i].rdata = 32'b0;
     end
   end
 
@@ -188,7 +188,7 @@ module xilinx_core_v_mini_mcu_wrapper
       .ext_dma_addr_req_o(),
       .ext_dma_addr_resp_i(zero_array_resp),
       .ext_peripheral_slave_req_o(ext_periph_slv_req),
-      .ext_peripheral_slave_resp_i(ext_periph_slv_resp),
+      .ext_peripheral_slave_resp_i(ext_periph_slv_rsp),
       .ext_ao_peripheral_req_i(ext_ao_peripheral_req),
       .ext_ao_peripheral_resp_o(ext_ao_peripheral_resp),
       .external_subsystem_powergate_switch_no(),
