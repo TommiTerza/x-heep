@@ -9,6 +9,6 @@
 
 #include <stdint.h>
 
-extern const uint32_t golden_im2col_nchw[225];
+extern const uint32_t golden_im2col_nchw[5400];
 
 #endif // GOLDEN_IM2COL_NCHW_H

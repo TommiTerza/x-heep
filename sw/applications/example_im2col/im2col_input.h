@@ -9,10 +9,10 @@
 
 #include <stdint.h>
 
-#define IH 5
-#define IW 5
-#define CH 1
-#define BATCH 1
+#define IH 10
+#define IW 10
+#define CH 2
+#define BATCH 3
 #define FH 3
 #define FW 3
 #define TOP_PAD 1
@@ -22,6 +22,6 @@
 #define STRIDE_D1 1
 #define STRIDE_D2 1
 
-extern const uint32_t input_image_nchw[25];
+extern const uint32_t input_image_nchw[600];
 
 #endif // INPUT_IMAGE_NCHW_H
