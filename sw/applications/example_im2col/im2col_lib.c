@@ -391,6 +391,8 @@ int im2col_nchw_int32(uint8_t test_id, unsigned int *cycles)
         uint32_t* input_image_ptr = &input_image_nchw[0];
         uint32_t* output_data_ptr = &output_data[0];
 
+        dma_init(0);
+
         #if TIMING
         CSR_SET_BITS(CSR_REG_MCOUNTINHIBIT, 0x1);
         CSR_WRITE(CSR_REG_MCYCLE, 0);

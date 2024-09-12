@@ -21,6 +21,8 @@ unsigned int cycles;
 
 int main()
 {
+  for (int j=0; j<3; j++)
+  {
     for (int i=START_ID; i<3; i++)
     {
       im2col_nchw_int32(i, &cycles);
@@ -54,6 +56,8 @@ int main()
     
     /* Print the end word for verification */
     PRINTF("&\n\r");
+  }
+    
 
     return EXIT_SUCCESS;
 }
