@@ -33,6 +33,8 @@ USBport = 2
 
 # Define the parameters for the test
 
+datatype = "uint8_t"
+
 num_masters = 4 # Number of DMA CH
 num_slaves = 2 # Number of BUS master ports
 max_masters_per_slave = 2 # Maximum number of DMA CH per BUS master port
@@ -230,12 +232,14 @@ def main(stdscr):
                                                       'STRIDE_D2': u
                                                   }
                                                   
-                                                  im2colVer.genInputDataset(input_size, row_size=m, range_max=65500, dataset_dir_c="../../../sw/applications/example_im2col/im2col_input.c", 
-                                                                            dataset_dir="../../../sw/applications/example_im2col/im2col_input.h", parameters=parameters, dataset_name="input_image_nchw")
+                                                  im2colVer.genInputDataset(input_size, row_size=m, range_max=255, dataset_dir_c="../../../sw/applications/example_im2col/im2col_input.c", 
+                                                                            dataset_dir="../../../sw/applications/example_im2col/im2col_input.h", parameters=parameters, dataset_name="input_image_nchw",
+                                                                            datatype=datatype)
                                                   
                                                   im2colVer.genGoldenResult(im2col_function, golden_size, parameters, row_size=OW, golden_dir="../../../sw/applications/example_im2col/im2col_golden.h", 
                                                                             golden_dir_c="../../../sw/applications/example_im2col/im2col_golden.c", input_dataset_dir="../../../sw/applications/example_im2col/im2col_input.c",
-                                                                            golden_name="golden_im2col_nchw")
+                                                                            golden_name="golden_im2col_nchw",
+                                                                            output_datatype=datatype)
                                                   
                                                   # Optimize the test: since the CPU and DMA 2D C tests are the same for different SPC channels configurations,
                                                   # we can run them only once and then skip them for the rest of the tests

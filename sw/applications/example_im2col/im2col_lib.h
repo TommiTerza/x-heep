@@ -46,12 +46,15 @@
 /* Defines which DMA channels are available to the SPC, depending on HW specifications */
 #define SPC_CH_MASK 0b0001 
 
+/* Defines the datatype of the input */
+#define INPUT_DATATYPE DMA_DATA_TYPE_BYTE
+
 /* Base address of the im2col SPC */
 #define IM2COL_SPC_BASE_ADDR EXT_PERIPHERAL_START_ADDRESS + 0x4000
 
 /* By default, printfs are activated for FPGA and for simulation. */
 #define PRINTF_IN_FPGA  1
-#define PRINTF_IN_SIM   0
+#define PRINTF_IN_SIM   1
 
 /* Set to 1 to enable debug prints */
 #define DEBUG 0
@@ -106,7 +109,7 @@
 
 #define START_ID 1
 
-#define TEST_EN 0
+#define TEST_EN 1
 
 // Computations for 2D DMA
 #define SRC_INC_D2 (STRIDE_D2 * IW - (FW - 1 + (STRIDE_D1 - 1) * (FW - 1)))
