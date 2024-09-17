@@ -47,7 +47,7 @@
 #define SPC_CH_MASK 0b0001 
 
 /* Defines the datatype of the input */
-#define INPUT_DATATYPE DMA_DATA_TYPE_BYTE
+#define INPUT_DATATYPE 2
 
 /* Base address of the im2col SPC */
 #define IM2COL_SPC_BASE_ADDR EXT_PERIPHERAL_START_ADDRESS + 0x4000

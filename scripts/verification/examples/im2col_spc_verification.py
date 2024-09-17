@@ -34,6 +34,7 @@ USBport = 2
 # Define the parameters for the test
 
 datatype = "uint8_t"
+range_max = 255
 
 num_masters = 4 # Number of DMA CH
 num_slaves = 2 # Number of BUS master ports
@@ -232,7 +233,7 @@ def main(stdscr):
                                                       'STRIDE_D2': u
                                                   }
                                                   
-                                                  im2colVer.genInputDataset(input_size, row_size=m, range_max=255, dataset_dir_c="../../../sw/applications/example_im2col/im2col_input.c", 
+                                                  im2colVer.genInputDataset(input_size, row_size=m, range_max=range_max, dataset_dir_c="../../../sw/applications/example_im2col/im2col_input.c", 
                                                                             dataset_dir="../../../sw/applications/example_im2col/im2col_input.h", parameters=parameters, dataset_name="input_image_nchw",
                                                                             datatype=datatype)
                                                   
