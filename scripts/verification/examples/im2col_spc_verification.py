@@ -162,7 +162,7 @@ def main(stdscr):
   cpu_done = 0
   iteration = 1
   started = False
-  counter = 100
+  counter = 10
 
   # Set CH0 to be the SPC channel
   mask = "0001"
@@ -202,10 +202,12 @@ def main(stdscr):
                                                   if started and counter == 0:
                                                     im2colVer.stopDeb()
                                                     im2colVer.setUpDeb()
-                                                    counter = 100
-                                                  else:
+                                                    counter = 10
+                                                  elif not started:
                                                     im2colVer.setUpDeb()
                                                     started = True
+                                                    counter =- 1
+                                                  else:                                                      
                                                     counter =- 1
                                                   
                                                   im2colVer.chronoStart()
