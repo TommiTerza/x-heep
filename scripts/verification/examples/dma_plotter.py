@@ -17,9 +17,9 @@ def read_data(file_path):
     with open(file_path, 'r') as f:
         lines = f.readlines()
 
-    im2col_cpu_data = []
-    im2col_dma_data = []
-    im2col_spc_data = []
+    cpu_data = []
+    dma_hal_data = []
+    dma_no_hal_data = []
 
     current_test_type = None
 
@@ -27,14 +27,14 @@ def read_data(file_path):
         line = line.strip()
         if line == '':
             continue  # Skip empty lines
-        if line.startswith('im2col_cpu:'):
+        if line.startswith('cpu:'):
             current_test_type = 'cpu'
             continue
-        elif line.startswith('im2col_dma_2d_C:'):
-            current_test_type = 'dma'
+        elif line.startswith('dma_hal:'):
+            current_test_type = 'dma_hal'
             continue
-        elif line.startswith('im2col_spc:'):
-            current_test_type = 'spc'
+        elif line.startswith('dma_no_hal:'):
+            current_test_type = 'dma_no_hal'
             continue
         else:
             # This line should be a list like: ['...', '...']
@@ -46,13 +46,13 @@ def read_data(file_path):
             entries[-1] = entries[-1].rstrip("'")
             # Now entries is a list of strings
             if current_test_type == 'cpu':
-                im2col_cpu_data.extend(entries)
-            elif current_test_type == 'dma':
-                im2col_dma_data.extend(entries)
-            elif current_test_type == 'spc':
-                im2col_spc_data.extend(entries)
+                cpu_data.extend(entries)
+            elif current_test_type == 'dma_hal':
+                dma_hal_data.extend(entries)
+            elif current_test_type == 'dma_no_hal':
+                dma_no_hal_data.extend(entries)
 
-    return im2col_cpu_data, im2col_dma_data, im2col_spc_data
+    return cpu_data, dma_hal_data, dma_no_hal_data
 
 # Function to parse each entry into a dictionary
 def parse_entry(entry):
@@ -66,30 +66,26 @@ def parse_entry(entry):
 
 # Function to compute loop size
 def compute_loop_size(entry):
-    n_patches_h = int((entry['H'] - entry['FH'] + entry['PT'] + entry['PB']) / entry['S2']) + 1
-    n_patches_w = int((entry['W'] - entry['FW'] + entry['PL'] + entry['PR']) / entry['S1']) + 1
-    OH = entry['FW'] * entry['FH'] * entry['C'] * entry['B']
-    OW = n_patches_h * n_patches_w
-    loop_size = OH * OW
+    loop_size = int((entry['H'] + entry['PT'] + entry['PB'])/ entry['S2']) * ((entry['W'] + entry['PL'] + entry['PR'])/ entry['S1'])
     return loop_size
 
 # Function to plot data
-def plot_data(df_cpu, df_dma, df_spc, padding, title_suffix, filename_suffix):
+def plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding, title_suffix, filename_suffix):
     plt.figure(figsize=(12, 8))
     if padding == None:
       df_cpu_filtered = df_cpu
-      df_dma_filtered = df_dma
-      df_spc_filtered = df_spc
+      df_dma_hal_filtered = df_dma_hal
+      df_dma_no_hal_filtered = df_dma_no_hal
     else:
       # Filter data based on padding values
       df_cpu_filtered = df_cpu[(df_cpu['PT'] == padding) & (df_cpu['PB'] == padding) & (df_cpu['PL'] == padding) & (df_cpu['PR'] == padding)]
-      df_dma_filtered = df_dma[(df_dma['PT'] == padding) & (df_dma['PB'] == padding) & (df_dma['PL'] == padding) & (df_dma['PR'] == padding)]
-      df_spc_filtered = df_spc[(df_spc['PT'] == padding) & (df_spc['PB'] == padding) & (df_spc['PL'] == padding) & (df_spc['PR'] == padding)]
+      df_dma_hal_filtered = df_dma_hal[(df_dma_hal['PT'] == padding) & (df_dma_hal['PB'] == padding) & (df_dma_hal['PL'] == padding) & (df_dma_hal['PR'] == padding)]
+      df_dma_no_hal_filtered = df_dma_no_hal[(df_dma_no_hal['PT'] == padding) & (df_dma_no_hal['PB'] == padding) & (df_dma_no_hal['PL'] == padding) & (df_dma_no_hal['PR'] == padding)]
 
     # Scatter plots
     plt.scatter(df_cpu_filtered['loop_size'], df_cpu_filtered['cycles'], color='blue', label='CPU')
-    plt.scatter(df_dma_filtered['loop_size'], df_dma_filtered['cycles'], color='red', label='DMA')
-    plt.scatter(df_spc_filtered['loop_size'], df_spc_filtered['cycles'], color='green', label='SPC')
+    plt.scatter(df_dma_hal_filtered['loop_size'], df_dma_hal_filtered['cycles'], color='red', label='DMA with HAL')
+    plt.scatter(df_dma_no_hal_filtered['loop_size'], df_dma_no_hal_filtered['cycles'], color='green', label='DMA with Direct Register Configuraiton')
 
     # Trendline plots
     if not df_cpu_filtered.empty:
@@ -97,15 +93,15 @@ def plot_data(df_cpu, df_dma, df_spc, padding, title_suffix, filename_suffix):
         trendline_cpu = np.polyval(p_cpu, df_cpu_filtered['loop_size'])
         plt.plot(df_cpu_filtered['loop_size'], trendline_cpu, color='blue', linestyle='--')
     
-    if not df_dma_filtered.empty:
-        p_dma = np.polyfit(df_dma_filtered['loop_size'], df_dma_filtered['cycles'], 1)
-        trendline_dma = np.polyval(p_dma, df_dma_filtered['loop_size'])
-        plt.plot(df_dma_filtered['loop_size'], trendline_dma, color='red', linestyle='--')
+    if not df_dma_hal_filtered.empty:
+        p_dma = np.polyfit(df_dma_hal_filtered['loop_size'], df_dma_hal_filtered['cycles'], 1)
+        trendline_dma = np.polyval(p_dma, df_dma_hal_filtered['loop_size'])
+        plt.plot(df_dma_hal_filtered['loop_size'], trendline_dma, color='red', linestyle='--')
 
-    if not df_spc_filtered.empty:
-        p_spc = np.polyfit(df_spc_filtered['loop_size'], df_spc_filtered['cycles'], 1)
-        trendline_spc = np.polyval(p_spc, df_spc_filtered['loop_size'])
-        plt.plot(df_spc_filtered['loop_size'], trendline_spc, color='green', linestyle='--')
+    if not df_dma_no_hal_filtered.empty:
+        p_spc = np.polyfit(df_dma_no_hal_filtered['loop_size'], df_dma_no_hal_filtered['cycles'], 1)
+        trendline_spc = np.polyval(p_spc, df_dma_no_hal_filtered['loop_size'])
+        plt.plot(df_dma_no_hal_filtered['loop_size'], trendline_spc, color='green', linestyle='--')
 
     # Labels and title
     plt.xlabel('Output Size')
@@ -115,43 +111,43 @@ def plot_data(df_cpu, df_dma, df_spc, padding, title_suffix, filename_suffix):
     plt.grid(True)
 
     # Save plot
-    plt.savefig(f'plot_padding_{filename_suffix}.png')
+    plt.savefig(f'dma_plot_padding_{filename_suffix}.png')
 
     # Show plot
     plt.show()
 
 def main():
     # Path to the file containing the data
-    file_path = 'im2col_data.txt'
+    file_path = 'dma_data.txt'
     
     # Read data from the file
-    im2col_cpu_data, im2col_dma_data, im2col_spc_data = read_data(file_path)
+    cpu_data, dma_hal_data, dma_no_hal_data = read_data(file_path)
     
     # Parse entries
-    cpu_entries = [parse_entry(entry) for entry in im2col_cpu_data]
-    dma_entries = [parse_entry(entry) for entry in im2col_dma_data]
-    spc_entries = [parse_entry(entry) for entry in im2col_spc_data]
+    cpu_entries = [parse_entry(entry) for entry in cpu_data]
+    dma_hal_entries = [parse_entry(entry) for entry in dma_hal_data]
+    dma_no_hal_entries = [parse_entry(entry) for entry in dma_no_hal_data]
     
     # Compute loop_size and add to entries
     for entry in cpu_entries:
         entry['loop_size'] = compute_loop_size(entry)
-    for entry in dma_entries:
+    for entry in dma_hal_entries:
         entry['loop_size'] = compute_loop_size(entry)
-    for entry in spc_entries:
+    for entry in dma_no_hal_entries:
         entry['loop_size'] = compute_loop_size(entry)
     
     # Create DataFrames
     df_cpu = pd.DataFrame(cpu_entries)
-    df_dma = pd.DataFrame(dma_entries)
-    df_spc = pd.DataFrame(spc_entries)
+    df_dma_hal = pd.DataFrame(dma_hal_entries)
+    df_dma_no_hal = pd.DataFrame(dma_no_hal_entries)
     
     # Main plot (all data)
-    plot_data(df_cpu, df_dma, df_spc, padding=None, title_suffix="(All Padding)", filename_suffix="all")
+    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=None, title_suffix="(All Padding)", filename_suffix="all")
 
     # Additional plots for specific padding values
-    plot_data(df_cpu, df_dma, df_spc, padding=0, title_suffix="(Padding 0)", filename_suffix="0")
-    plot_data(df_cpu, df_dma, df_spc, padding=1, title_suffix="(Padding 1)", filename_suffix="1")
-    plot_data(df_cpu, df_dma, df_spc, padding=2, title_suffix="(Padding 2)", filename_suffix="2")
+    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=0, title_suffix="(Padding 0)", filename_suffix="0")
+    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=1, title_suffix="(Padding 1)", filename_suffix="1")
+    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=2, title_suffix="(Padding 2)", filename_suffix="2")
 
 if __name__ == '__main__':
     main()
