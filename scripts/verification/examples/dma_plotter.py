@@ -69,23 +69,36 @@ def compute_loop_size(entry):
     loop_size = int((entry['H'] + entry['PT'] + entry['PB'])/ entry['S2']) * ((entry['W'] + entry['PL'] + entry['PR'])/ entry['S1'])
     return loop_size
 
+# Function to calculate axis limits based on data
+def calculate_axis_limits(df_cpu, df_dma_hal, df_dma_no_hal):
+    # Combine all loop_size and cycle data
+    all_loop_sizes = pd.concat([df_cpu['loop_size'], df_dma_hal['loop_size'], df_dma_no_hal['loop_size']])
+    all_cycles = pd.concat([df_cpu['cycles'], df_dma_hal['cycles'], df_dma_no_hal['cycles']])
+    
+    # Compute the limits for both axes
+    xlim = (0, all_loop_sizes.max()*1.1)
+    ylim = (0, all_cycles.max()*1.1)
+    
+    return xlim, ylim
+
 # Function to plot data
-def plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding, title_suffix, filename_suffix):
-    plt.figure(figsize=(12, 8))
-    if padding == None:
-      df_cpu_filtered = df_cpu
-      df_dma_hal_filtered = df_dma_hal
-      df_dma_no_hal_filtered = df_dma_no_hal
+def plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding, title_suffix, filename_suffix, xlim=None, ylim=None):
+    plt.figure(figsize=(20, 12))
+    
+    if padding is None:
+        df_cpu_filtered = df_cpu
+        df_dma_hal_filtered = df_dma_hal
+        df_dma_no_hal_filtered = df_dma_no_hal
     else:
-      # Filter data based on padding values
-      df_cpu_filtered = df_cpu[(df_cpu['PT'] == padding) & (df_cpu['PB'] == padding) & (df_cpu['PL'] == padding) & (df_cpu['PR'] == padding)]
-      df_dma_hal_filtered = df_dma_hal[(df_dma_hal['PT'] == padding) & (df_dma_hal['PB'] == padding) & (df_dma_hal['PL'] == padding) & (df_dma_hal['PR'] == padding)]
-      df_dma_no_hal_filtered = df_dma_no_hal[(df_dma_no_hal['PT'] == padding) & (df_dma_no_hal['PB'] == padding) & (df_dma_no_hal['PL'] == padding) & (df_dma_no_hal['PR'] == padding)]
+        # Filter data based on padding values
+        df_cpu_filtered = df_cpu[(df_cpu['PT'] == padding) & (df_cpu['PB'] == padding) & (df_cpu['PL'] == padding) & (df_cpu['PR'] == padding)]
+        df_dma_hal_filtered = df_dma_hal[(df_dma_hal['PT'] == padding) & (df_dma_hal['PB'] == padding) & (df_dma_hal['PL'] == padding) & (df_dma_hal['PR'] == padding)]
+        df_dma_no_hal_filtered = df_dma_no_hal[(df_dma_no_hal['PT'] == padding) & (df_dma_no_hal['PB'] == padding) & (df_dma_no_hal['PL'] == padding) & (df_dma_no_hal['PR'] == padding)]
 
     # Scatter plots
     plt.scatter(df_cpu_filtered['loop_size'], df_cpu_filtered['cycles'], color='blue', label='CPU')
     plt.scatter(df_dma_hal_filtered['loop_size'], df_dma_hal_filtered['cycles'], color='red', label='DMA with HAL')
-    plt.scatter(df_dma_no_hal_filtered['loop_size'], df_dma_no_hal_filtered['cycles'], color='green', label='DMA with Direct Register Configuraiton')
+    plt.scatter(df_dma_no_hal_filtered['loop_size'], df_dma_no_hal_filtered['cycles'], color='green', label='DMA with Direct Register Configuration')
 
     # Trendline plots
     if not df_cpu_filtered.empty:
@@ -103,15 +116,23 @@ def plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding, title_suffix, filename
         trendline_spc = np.polyval(p_spc, df_dma_no_hal_filtered['loop_size'])
         plt.plot(df_dma_no_hal_filtered['loop_size'], trendline_spc, color='green', linestyle='--')
 
-    # Labels and title
-    plt.xlabel('Output Size')
-    plt.ylabel('Cycles')
-    plt.title(f'Output Size vs Cycles - {title_suffix}')
-    plt.legend()
-    plt.grid(True)
+    # Set xlim and ylim if provided
+    if xlim and ylim:
+        plt.xlim(xlim)
+        plt.ylim(ylim)
 
-    # Save plot
-    plt.savefig(f'dma_plot_padding_{filename_suffix}.png')
+    # Labels and title
+    #plt.xlabel('Output Size')
+    #plt.ylabel('Cycles')
+    #plt.title(f'Output Size vs Cycles - {title_suffix}')
+    #plt.legend()
+    plt.grid(True)
+    
+    # Adjust tick label size
+    plt.tick_params(axis='both', which='major', labelsize=22)
+
+    # Save plot as SVG
+    plt.savefig(f'dma_plot_padding_{filename_suffix}.svg', format='svg')
 
     # Show plot
     plt.show()
@@ -141,13 +162,16 @@ def main():
     df_dma_hal = pd.DataFrame(dma_hal_entries)
     df_dma_no_hal = pd.DataFrame(dma_no_hal_entries)
     
-    # Main plot (all data)
-    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=None, title_suffix="(All Padding)", filename_suffix="all")
+    # Calculate the axis limits based on all data (with padding=None)
+    xlim, ylim = calculate_axis_limits(df_cpu, df_dma_hal, df_dma_no_hal)
+    
+    # Main plot (all data, padding=None)
+    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=None, title_suffix="(All Padding)", filename_suffix="all", xlim=xlim, ylim=ylim)
 
-    # Additional plots for specific padding values
-    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=0, title_suffix="(Padding 0)", filename_suffix="0")
-    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=1, title_suffix="(Padding 1)", filename_suffix="1")
-    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=2, title_suffix="(Padding 2)", filename_suffix="2")
+    # Additional plots for specific padding values using the same limits
+    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=0, title_suffix="(Padding 0)", filename_suffix="0", xlim=xlim, ylim=ylim)
+    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=1, title_suffix="(Padding 1)", filename_suffix="1", xlim=xlim, ylim=ylim)
+    plot_data(df_cpu, df_dma_hal, df_dma_no_hal, padding=2, title_suffix="(Padding 2)", filename_suffix="2", xlim=xlim, ylim=ylim)
 
 if __name__ == '__main__':
     main()
