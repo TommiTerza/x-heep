@@ -5,12 +5,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "csr.h"
-#include "matrixMul8.h"
+#include "data.h"
 #include "x-heep.h"
 
 /* By default, printfs are activated for FPGA and disabled for simulation. */
 #define PRINTF_IN_FPGA  1
-#define PRINTF_IN_SIM   0
+#define PRINTF_IN_SIM   1
+
+#define TEST_EN 1
 
 #if TARGET_SIM && PRINTF_IN_SIM
         #define PRINTF(fmt, ...)    printf(fmt, ## __VA_ARGS__)
@@ -65,7 +67,28 @@ int main()
 
     errors = check_results(m_c, SIZE);
 
-    PRINTF("program finished with %d errors and %d cycles\n\r", errors, cycles);
+    
+
+    if (errors == 0) {
+      #if TEST_EN == 0
+      PRINTF("TEST 0 PASSED!\n\r\n\r");
+      #else
+      PRINTF("0:%d:0\n\r", cycles);   
+      #endif
+    } 
+    else 
+    {
+        #if TEST_EN == 0
+        PRINTF("TEST 0 FAILED\n\r");
+        #else
+        PRINTF("0:%d:1\n\r", cycles);   
+        #endif
+    }
+    
+    #if TEST_EN
+    PRINTF("&\n\r");
+    #endif
+
     return errors;
 }
 
@@ -76,9 +99,9 @@ void __attribute__ ((noinline)) matrixMul8_blocksize(int8_t *  A, int8_t *  B, i
         for(int j = 0; j < N; j++) {
             int32_t acc = 0;
             for(int k = 0; k < N; k++) {
-                acc+= A[i*SIZE+k] * B[k*SIZE+j];
+                acc+= A[i*N+k] * B[k*N+j];
             }
-            C[i*SIZE+j] += acc;
+            C[i*N+j] += acc;
         }
     }
 

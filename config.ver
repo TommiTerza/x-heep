@@ -1,0 +1,94 @@
+{
+  target:
+  {
+    name: "pynq-z2" # or "simulation_tool_name", must be one of the targets defined in "verifit.mk"
+    type: "fpga" # or "sim", MANDATORY
+    usbPort: 0 # For FPGA targets
+    baudrate: 9600 # For FPGA targets
+    iterations: 10 # Set the number of iterations of the verification campaign
+    outputFile: "/home/tommi/Desktop/X-Heep/Source/x-heep-verifit/x-heep/build/openhwgroup.org_systems_core-v-mini-mcu_0/sim-verilator/uart0.log" # Directory to the UART log of the simulation
+  }
+
+  report: {
+    dir: "/home/tommi/Desktop/X-Heep/Source/x-heep-verifit/x-heep/report" # Insert the directory for the dumped report
+  }
+  
+  tests: [
+    {
+      appName: "example_matmul"
+      dir: "/home/tommi/Desktop/X-Heep/Source/x-heep-verifit/x-heep/sw/applications/example_matmul"
+      genFilesName: "data"
+      outputFormat: "(\\d+):(\\d+):(\\d+)" 
+      outputTags: ["ID", "Cycles", "Outcome"]
+    
+
+      numberInputDatasets: 2
+      numberOutputDatasets: 1
+
+      parameters: [
+        {
+          name: "SIZE"
+          value: [4, 8]
+          step: 2
+        }
+      ]
+
+      inputDataset: [
+        { 
+          name: "m_a"
+          dataType: "int8_t"
+          valueRange: [-4, 4]
+          dimensions: ["SIZE", "SIZE"]
+        }
+        { 
+          name: "m_b"
+          dataType: "int8_t"
+          valueRange: [-4, 4]
+          dimensions: ["SIZE", "SIZE"]
+        }
+      ]
+
+      outputDataset: {
+        name: "m_exp"
+        dataType: "int8_t"
+      }
+
+      goldenResultFunction:{
+        name: "matrix_multiply"
+      }
+    }
+    {
+      appName: "example_dma"
+      dir: "/home/tommi/Desktop/X-Heep/Source/x-heep-verifit/x-heep/sw/applications/example_dma"
+      genFilesName: "test_parameters"
+      outputFormat: "(\\d+):(\\d+):(\\d+)" 
+      outputTags: ["ID", "Errors", "Outcome"]
+    
+
+      numberInputDatasets: 0
+      numberOutputDatasets: 0
+
+      parameters: [
+        {
+          name: "TEST_DATA_SIZE"
+          value: [8, 32]
+          step: 4
+        }
+        {
+          name: "TEST_DATA_LARGE"
+          value: [128, 256]
+          step: 32
+        }
+        {
+          name: "TEST_WINDOW_SIZE_DU"
+          value: [128, 256]
+          step: 32
+        }
+        {
+          name: "TRANSACTIONS_N"
+          value: 3
+        }
+      ]
+    }
+  ]
+}

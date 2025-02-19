@@ -20,7 +20,7 @@
 #include "x-heep.h"
 #include "csr.h"
 #include "rv_plic.h"
-#include "test_data.h"
+#include "data.h"
 
 /*  
  *  This code contains four different tests that can be run by defining the corresponding TEST_ID_* macro.
@@ -31,9 +31,9 @@
  */
 
 #define TEST_ID_0
-#define TEST_ID_1
-#define TEST_ID_2
-#define TEST_ID_3
+//#define TEST_ID_1
+//#define TEST_ID_2
+//#define TEST_ID_3
 
 /* Enable performance analysis */
 #define EN_PERF 1
@@ -74,7 +74,7 @@
 #define TRANSPOSITION_EN 1
 
 /* Enables test format */
-#define TEST_EN 0
+#define TEST_EN 1
 
 /* Define the input datatype */
 typedef uint32_t dma_input_data_type;
@@ -89,7 +89,7 @@ typedef uint32_t dma_input_data_type;
 
 /* By default, printfs are activated for FPGA and disabled for simulation. */
 #define PRINTF_IN_FPGA  1
-#define PRINTF_IN_SIM   0
+#define PRINTF_IN_SIM   1
 
 #if TARGET_SIM && PRINTF_IN_SIM
         #define PRINTF(fmt, ...)    printf(fmt, ## __VA_ARGS__)
@@ -294,8 +294,7 @@ int main()
         #if TEST_EN == 0
         PRINTF("TEST 0 PASSED!\n\r\n\r");
         #else
-        PRINTF("0a:%d:0\n\r", cycles_cpu);   
-        PRINTF("0b:%d:0\n\r", cycles_dma);               
+        PRINTF("0:%d:%d:0\n\r", cycles_cpu, cycles_dma);   
         #endif
     } 
     else 
@@ -303,8 +302,7 @@ int main()
         #if TEST_EN == 0
         PRINTF("TEST 0 FAILED\n\r");
         #else
-        PRINTF("0a:%d:1\n\r", cycles_cpu); 
-        PRINTF("0b:%d:1\n\r", cycles_dma); 
+        PRINTF("0:%d:%d:1\n\r", cycles_cpu, cycles_dma);   
         #endif
         return EXIT_FAILURE;
     }

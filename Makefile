@@ -333,3 +333,31 @@ clean-app: app-restore
 
 ## Removes the CMake build folder and the HW build folder
 clean-all: app-restore clean-sim
+
+sw-sim:
+	$(MAKE) app PROJECT=$(app)
+
+sw-fpga:
+	$(MAKE) app PROJECT=$(app) TARGET=$(target)
+
+sim-build:
+ifeq ($(tool),verilator)
+	$(MAKE) mcu-gen MEMORY_BANKS=6
+	$(MAKE) verilator-sim
+endif
+
+sim-run:
+	cd ./build/openhwgroup.org_systems_core-v-mini-mcu_0/sim-verilator && ./Vtestharness +firmware=../../../sw/build/main.hex
+
+fpga-build:
+ifeq ($(target), pynq-z2)
+	$(MAKE) vivado-fpga FPGA_BOARD=pynq-z2
+endif
+
+fpga-load:
+	
+gdb-setup:
+	$(RISCV)/bin/riscv32-unknown-elf-gdb ./sw/build/main.elf
+
+deb-setup:
+	openocd -f ./tb/core-v-mini-mcu-pynq-z2-bscan.cfg

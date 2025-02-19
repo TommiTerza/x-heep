@@ -10,8 +10,11 @@
 #include "x-heep.h"
 #include "csr.h"
 #include "rv_plic.h"
+#include "test_parameters.h"
 
 // TEST DEFINES AND CONFIGURATION
+
+//#define TEST_MODE
 
 #define TEST_SINGLE_MODE
 #define TEST_ADDRESS_MODE
@@ -19,10 +22,8 @@
 #define TEST_WINDOW
 #define TEST_ADDRESS_MODE_EXTERNAL_DEVICE
 
-#define TEST_DATA_SIZE 16
-#define TEST_DATA_LARGE 256
-#define TRANSACTIONS_N 3         // Only possible to perform one transaction at a time, others should be blocked
-#define TEST_WINDOW_SIZE_DU 256 // if put at <=71 the isr is too slow to react to the interrupt
+// Only possible to perform one transaction at a time, others should be blocked
+// If TEST_WINDOW_SIZE_DU is put at <=71 the isr is too slow to react to the interrupt
 
 #if TEST_DATA_LARGE < 2 * TEST_DATA_SIZE
 #errors("TEST_DATA_LARGE must be at least 2*TEST_DATA_SIZE")
@@ -30,14 +31,27 @@
 
 /* By default, printfs are activated for FPGA and disabled for simulation. */
 #define PRINTF_IN_FPGA 1
-#define PRINTF_IN_SIM 0
+#define PRINTF_IN_SIM 1
 
 #if TARGET_SIM && PRINTF_IN_SIM
+#ifndef TEST_MODE
 #define PRINTF(fmt, ...) printf(fmt, ##__VA_ARGS__)
-#elif PRINTF_IN_FPGA && !TARGET_SIM
-#define PRINTF(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#define PRINTF_TEST(...)
 #else
 #define PRINTF(...)
+#define PRINTF_TEST(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#endif
+#elif PRINTF_IN_FPGA && !TARGET_SIM
+#ifndef TEST_MODE
+#define PRINTF(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#define PRINTF_TEST(...)
+#else
+#define PRINTF(...)
+#define PRINTF_TEST(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#endif
+#else
+#define PRINTF(...)
+#define PRINTF_TEST(...)
 #endif
 
 // UTILITIES
@@ -231,7 +245,6 @@ dma_trans_t trans;
 int main(int argc, char *argv[])
 {
 
-
     static uint32_t test_data_4B[TEST_DATA_SIZE] __attribute__((aligned(4))) = {
         0x76543210, 0xfedcba98, 0x579a6f90, 0x657d5bee, 0x758ee41f, 0x01234567, 0xfedbca98, 0x89abcdef, 0x679852fe, 0xff8252bb, 0x763b4521, 0x6875adaa, 0x09ac65bb, 0x666ba334, 0x55446677, 0x65ffba98};
     static uint32_t copied_data_4B[TEST_DATA_LARGE] __attribute__((aligned(4))) = {0};
@@ -258,6 +271,12 @@ int main(int argc, char *argv[])
     PRINTF("\n\n\r===================================\n\n\r");
 
     TEST_SINGLE
+
+    if(errors != 0){
+      PRINTF_TEST("0:%d:1\n", errors);
+    } else {
+      PRINTF_TEST("0:0:0\n");
+    }
 
 #endif // TEST_SINGLE_MODE
 
@@ -315,10 +334,12 @@ int main(int argc, char *argv[])
     if (errors == 0)
     {
         PRINTF("DMA address mode success.\n\r");
+        PRINTF_TEST("1:0:0\n");
     }
     else
     {
         PRINTF("DMA address mode failure: %d errors out of %d elements checked\n\r", errors, trans.size_d1_du);
+        PRINTF_TEST("1:%d:1\n", errors);
         return EXIT_FAILURE;
     }
 
@@ -370,10 +391,12 @@ int main(int argc, char *argv[])
     if (errors == 0)
     {
         PRINTF("DMA address mode in external memory success.\n\r");
+        PRINTF_TEST("2:0:0\n");
     }
     else
     {
         PRINTF("DMA address mode in external memory failure: %d errors out of %d elements checked\n\r", errors, trans.size_d1_du);
+        PRINTF_TEST("2:%d:1\n", errors);
         return EXIT_FAILURE;
     }
 
@@ -443,10 +466,12 @@ int main(int argc, char *argv[])
     if (errors == 0)
     {
         PRINTF("DMA multiple transactions success.\n\r");
+        PRINTF_TEST("3:0:0\n");
     }
     else
     {
         PRINTF("DMA multiple transactions failure: %d errors out of %d words checked\n\r", errors, TEST_DATA_SIZE);
+        PRINTF_TEST("3:%d:1\n", errors);
         return EXIT_FAILURE;
     }
 
@@ -509,13 +534,17 @@ int main(int argc, char *argv[])
     if (errors == 0)
     {
         PRINTF("DMA window success\n\r");
+        PRINTF_TEST("4:0:0\n");
     }
     else
     {
         PRINTF("DMA window failure: %d errors out of %d words checked\n\r", errors, TEST_DATA_SIZE);
+        PRINTF_TEST("4:%d:1\n", errors);
         return EXIT_FAILURE;
     }
 #endif // TEST_WINDOW
+    PRINTF_TEST("&\n");
+    printf("C");
 
     return EXIT_SUCCESS;
 }
