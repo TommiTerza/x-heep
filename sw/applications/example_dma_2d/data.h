@@ -1,12 +1,12 @@
-#ifndef DATA_H
-#define DATA_H
+#ifndef TEST_DATA_H
+#define TEST_DATA_H
 
 #include <stdint.h>
 
 #define SIZE_IN_D1 10
-#define SIZE_IN_D2 3
+#define SIZE_IN_D2 10
 #define DMA_DATA_TYPE DMA_DATA_TYPE_WORD
 
-extern const uint32_t test_data[30];
+extern const uint32_t test_data[100];
 
-#endif // DATA_H
+#endif // TEST_DATA_H

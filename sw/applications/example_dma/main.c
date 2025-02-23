@@ -14,7 +14,7 @@
 
 // TEST DEFINES AND CONFIGURATION
 
-//#define TEST_MODE
+#define TEST_MODE
 
 #define TEST_SINGLE_MODE
 #define TEST_ADDRESS_MODE
@@ -26,7 +26,7 @@
 // If TEST_WINDOW_SIZE_DU is put at <=71 the isr is too slow to react to the interrupt
 
 #if TEST_DATA_LARGE < 2 * TEST_DATA_SIZE
-#errors("TEST_DATA_LARGE must be at least 2*TEST_DATA_SIZE")
+#error("TEST_DATA_LARGE must be at least 2*TEST_DATA_SIZE")
 #endif
 
 /* By default, printfs are activated for FPGA and disabled for simulation. */
@@ -544,7 +544,6 @@ int main(int argc, char *argv[])
     }
 #endif // TEST_WINDOW
     PRINTF_TEST("&\n");
-    printf("C");
 
     return EXIT_SUCCESS;
 }

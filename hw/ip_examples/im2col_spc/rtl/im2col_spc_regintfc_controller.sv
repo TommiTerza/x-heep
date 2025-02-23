@@ -46,11 +46,7 @@ module im2col_spc_regintfc_controller
       end
 
       WAITING_READY: begin
-        if (aopb_resp_i.ready == 1'b1) begin
-          im2col_status_q = DONE;
-        end else begin
-          im2col_status_q = WAITING_READY;
-        end
+        im2col_status_q = DONE;
       end
 
       DONE: begin

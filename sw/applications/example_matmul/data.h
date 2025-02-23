@@ -1,12 +1,12 @@
-#ifndef VER_DATA_H
-#define VER_DATA_H
+#ifndef TEST_DATA_H
+#define TEST_DATA_H
 
 #include <stdint.h>
 
-#define SIZE 4
+#define SIZE 8
 
-extern const int8_t m_a[16];
-extern const int8_t m_b[16];
-extern const int8_t m_exp[16];
+extern const int8_t m_a[64];
+extern const int8_t m_b[64];
+extern const int8_t m_exp[64];
 
-#endif // VER_DATA_H
+#endif // TEST_DATA_H

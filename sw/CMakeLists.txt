@@ -349,7 +349,7 @@ endif()
 if(NOT ${PROJECT} MATCHES "coremark")
   set(COMPILER_LINKER_FLAGS "\
     -march=${CMAKE_SYSTEM_PROCESSOR} \
-    -w -O2 -g  -nostdlib  \
+    -w -O1 -g  -nostdlib  \
     -ffunction-sections \
     -DHOST_BUILD \
     -D${CRT_TYPE} \
@@ -360,7 +360,7 @@ if(NOT ${PROJECT} MATCHES "coremark")
 else()
   set(COMPILER_LINKER_FLAGS "\
     -march=${CMAKE_SYSTEM_PROCESSOR} \
-    -w -O3 -g  -nostdlib -falign-functions=16 -funroll-all-loops -falign-jumps=4 -finline-functions -Wall -static -pedantic -DPERFORMANCE_RUN=1 -DITERATIONS=1 -DHAS_STDIO=1 -DHAS_PRINTF=1 \
+    -w -O1 -g  -nostdlib -falign-functions=16 -funroll-all-loops -falign-jumps=4 -finline-functions -Wall -static -pedantic -DPERFORMANCE_RUN=1 -DITERATIONS=1 -DHAS_STDIO=1 -DHAS_PRINTF=1 \
     -ffunction-sections \
     -DHOST_BUILD \
     -D${CRT_TYPE} \

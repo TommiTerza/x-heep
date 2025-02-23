@@ -1,9 +1,9 @@
 {
   target:
   {
-    name: "pynq-z2" # or "simulation_tool_name", must be one of the targets defined in "verifit.mk"
+    name: "pynq-z2"
     type: "fpga" # or "sim", MANDATORY
-    usbPort: 0 # For FPGA targets
+    usbPort: 2 # For FPGA targets
     baudrate: 9600 # For FPGA targets
     iterations: 10 # Set the number of iterations of the verification campaign
     outputFile: "/home/tommi/Desktop/X-Heep/Source/x-heep-verifit/x-heep/build/openhwgroup.org_systems_core-v-mini-mcu_0/sim-verilator/uart0.log" # Directory to the UART log of the simulation
@@ -81,14 +81,52 @@
         }
         {
           name: "TEST_WINDOW_SIZE_DU"
-          value: [128, 256]
-          step: 32
+          value: [80, 100]
+          step: 5
         }
         {
           name: "TRANSACTIONS_N"
           value: 3
         }
       ]
+    }
+    {
+      appName: "example_dma_2d"
+      dir: "/home/tommi/Desktop/X-Heep/Source/x-heep-verifit/x-heep/sw/applications/example_dma_2d"
+      genFilesName: "data"
+      outputFormat: "(\\d+):(\\d+):(\\d+)" 
+      outputTags: ["ID", "Cycles CPU", "Cycles DMA", "Outcome"]
+    
+
+      numberInputDatasets: 1
+      numberOutputDatasets: 0
+
+      parameters: [
+        {
+          name: "SIZE_IN_D1"
+          value: [5, 10]
+          step: 1
+        }
+        {
+          name: "SIZE_IN_D2"
+          value: [5, 10]
+          step: 1
+        }
+        {
+          name: "DMA_DATA_TYPE"
+          value: "DMA_DATA_TYPE_WORD"
+        }
+      ]
+
+      inputDataset: [
+        { 
+          name: "test_data"
+          dataType: "uint32_t"
+          valueRange: [0, 500]
+          dimensions: ["SIZE_IN_D1", "SIZE_IN_D2"]
+        }
+      ]
+
     }
   ]
 }

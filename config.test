@@ -1,0 +1,106 @@
+{
+  target:
+  {
+    name: "verilator"
+    type: "sim" # or "sim", MANDATORY
+    usbPort: 2 # For FPGA targets
+    baudrate: 9600 # For FPGA targets
+    iterations: 10 # Set the number of iterations of the verification campaign
+    outputFile: "/home/tommi/Desktop/X-Heep/Source/x-heep-verifit/x-heep/build/openhwgroup.org_systems_core-v-mini-mcu_0/sim-verilator/uart0.log" # Directory to the UART log of the simulation
+  }
+
+  report: {
+    dir: "/home/tommi/Desktop/X-Heep/Source/x-heep-verifit/x-heep/report" # Insert the directory for the dumped report
+  }
+  
+  tests: [
+    {
+      appName: "example_im2col"
+      dir: "/home/tommi/Desktop/X-Heep/Source/x-heep-verifit/x-heep/sw/applications/example_im2col"
+      genFilesName: "im2col_data"
+      outputFormat: "(\\d+):(\\d+):(\\d+)" 
+      outputTags: ["ID", "Cycles", "Outcome"]
+
+      parameters: [
+        {
+          name: "IH"
+          value: [10, 20]
+          step: 5
+        }
+        {
+          name: "IW"
+          value: [10, 20]
+          step: 5
+        }
+        {
+          name: "CH"
+          value: 3
+        }
+        {
+          name: "BATCH"
+          value: 1
+        }
+        {
+          name: "FW"
+          value: 3
+        }
+        {
+          name: "FH"
+          value: 3
+        }
+        {
+          name: "TOP_PAD"
+          value: [3, 5]
+          step: 1
+        }
+        {
+          name: "BOTTOM_PAD"
+          value: [3, 5]
+          step: 1
+        }
+        {
+          name: "LEFT_PAD"
+          value: [3, 5]
+          step: 1
+        }
+        {
+          name: "RIGHT_PAD"
+          value: [4, 5]
+          step: 1
+        }
+        {
+          name: "STRIDE_D1"
+          value: 1
+        }
+        {
+          name: "STRIDE_D2"
+          value: 1
+        }
+        {
+          name: "INPUT_DATATYPE"
+          value: 0
+        }
+      ]
+
+      inputDataset: [
+        { 
+          name: "input_image_nchw"
+          dataType: "uint32_t"
+          valueRange: [0, 5000]
+          dimensions: ["BATCH", "CH", "IW", "IH"]
+        }
+      ]
+
+      outputDataset: [
+        { 
+          name: "golden_im2col_nchw"
+          dataType: "uint32_t"
+        }
+      ]
+
+      goldenResultFunction:{
+        name: "im2col_function"
+      }
+    }
+  ]
+}

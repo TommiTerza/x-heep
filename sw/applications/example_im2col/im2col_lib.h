@@ -15,8 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "im2col_golden.h"
-#include "im2col_input.h"
+#include "im2col_data.h"
 #include "im2col.h"
 #include "dma.h"
 #include "im2col_spc_regs.h"
@@ -54,7 +53,7 @@
 
 /* By default, printfs are activated for FPGA and for simulation. */
 #define PRINTF_IN_FPGA  1
-#define PRINTF_IN_SIM   0
+#define PRINTF_IN_SIM   1
 
 /* Set to 1 to enable debug prints */
 #define DEBUG 0
@@ -106,7 +105,7 @@
 
 #define START_ID 0
 
-#define TEST_EN 0
+#define TEST_EN 1
 
 // Computations for 2D DMA
 #define SRC_INC_D2 (STRIDE_D2 * IW - (FW - 1 + (STRIDE_D1 - 1) * (FW - 1)))
