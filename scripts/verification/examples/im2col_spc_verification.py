@@ -49,8 +49,8 @@ channels_min = 1
 im_h_max = 11
 im_h_min = 10
 
-im_w_max = 11
-im_w_min = 10
+im_w_max = 31
+im_w_min = 30
 
 ker_h_max = 5
 ker_h_min = 3
@@ -69,8 +69,8 @@ pad_right_min = 1
 
 stride_d1_max = 2
 stride_d1_min = 1
-stride_d2_max = 2
-stride_d2_min = 1
+stride_d2_max = 5
+stride_d2_min = 4
 
 # Calculate the total number of iterations
 total_iterations = ((stride_d2_max - stride_d2_min) * (stride_d1_max - stride_d1_min) *
@@ -141,17 +141,17 @@ def im2col_function(input_array, parameters):
 im2colVer = verifheep.VerifHeep("pynq-z2", "../../../")
 
 # Connect to the pynq-z2 board
-print("Connecting to the board...")
-serial_status = im2colVer.serialBegin(f"/dev/ttyUSB{USBport}", 9600)
-if not serial_status:
-    print("Error connecting to the board")
-    exit(1)
-else:
-    print("Connected!\n")
-    time.sleep(1)
+# print("Connecting to the board...")
+# serial_status = im2colVer.serialBegin(f"/dev/ttyUSB{USBport}", 9600)
+# if not serial_status:
+#     print("Error connecting to the board")
+#     exit(1)
+# else:
+#     print("Connected!\n")
+#     time.sleep(1)
 
-# Set up the debug interface
-im2colVer.setUpDeb()
+# # Set up the debug interface
+# im2colVer.setUpDeb()
 
 def main(stdscr):
 

@@ -10,7 +10,8 @@ import torch.nn.functional as F
 # output as a list is MANDATORY
 def im2col_function(inputs, parameters):
     inputs = np.array(inputs)
-    
+    print(inputs)
+
     # Extract parameters
     batch_size = next(item['value'] for item in parameters if item['name'] == 'BATCH') 
     channels = next(item['value'] for item in parameters if item['name'] == 'CH')
@@ -38,7 +39,6 @@ def im2col_function(inputs, parameters):
     # Adjust padding format for F.pad (expects pad_left, pad_right, pad_top, pad_bottom)
     padding_format = (left_pad, right_pad, top_pad, bottom_pad)
 
-
     # Apply zero padding
     padded_input = F.pad(input_tensor, padding_format, "constant", 0)
 
@@ -53,4 +53,6 @@ def im2col_function(inputs, parameters):
     # Convert the PyTorch tensor to a NumPy array and then to a list (simple array)
     unfolded_array = unfolded_tensor.numpy()
 
-    return unfolded_array
+
+    print(unfolded_array.reshape(1, 1, 1, *unfolded_array.shape))
+    return unfolded_array.reshape(1, 1, 1, *unfolded_array.shape)

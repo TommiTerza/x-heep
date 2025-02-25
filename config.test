@@ -24,17 +24,15 @@
       parameters: [
         {
           name: "IH"
-          value: [10, 20]
-          step: 5
+          value: 20
         }
         {
           name: "IW"
-          value: [10, 20]
-          step: 5
+          value: 20
         }
         {
           name: "CH"
-          value: 3
+          value: 1
         }
         {
           name: "BATCH"
@@ -50,31 +48,27 @@
         }
         {
           name: "TOP_PAD"
-          value: [3, 5]
-          step: 1
+          value: 1
         }
         {
           name: "BOTTOM_PAD"
-          value: [3, 5]
-          step: 1
+          value: 1
         }
         {
           name: "LEFT_PAD"
-          value: [3, 5]
-          step: 1
+          value: 1
         }
         {
           name: "RIGHT_PAD"
-          value: [4, 5]
-          step: 1
+          value: 1
         }
         {
           name: "STRIDE_D1"
-          value: 1
+          value: 2
         }
         {
           name: "STRIDE_D2"
-          value: 1
+          value: 4
         }
         {
           name: "INPUT_DATATYPE"
@@ -87,7 +81,7 @@
           name: "input_image_nchw"
           dataType: "uint32_t"
           valueRange: [0, 5000]
-          dimensions: ["BATCH", "CH", "IW", "IH"]
+          dimensions: ["BATCH", "CH", "IH", "IW"]
         }
       ]
 

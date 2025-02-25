@@ -1488,6 +1488,7 @@ static inline uint32_t get_increment_b_2D( dma_target_t * p_tgt,
             inc_b = ( p_tgt->inc_d2_du * dataSize_d1_du );
         }
     }
+    //printf("%d\n\r", inc_b);
     return inc_b;
 }
 
