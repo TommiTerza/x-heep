@@ -21,7 +21,7 @@ unsigned int cycles;
 
 int main()
 {
-    for (int i=START_ID; i<2; i++)
+    for (int i=START_ID; i<3; i++)
     {
       im2col_nchw_int32(i, &cycles);
 

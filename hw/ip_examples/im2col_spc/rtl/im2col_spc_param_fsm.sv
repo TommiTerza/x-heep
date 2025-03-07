@@ -490,8 +490,6 @@ module im2col_spc_param_fsm
   assign input_data_ptr = reg2hw.src_ptr.q + (index << (2 - reg2hw.data_type.q));
   assign out_data_ptr_inc = ({16'h0, reg2hw.n_patches_h.q} * {16'h0, reg2hw.n_patches_w.q}) << (2 - reg2hw.data_type.q);
 
-  assign pipe_rst = (rst_ni && param_state_d != IDLE);
-
   /* Output signals */
   assign im2col_param_done_o = im2col_param_done;
   assign reg2hw = reg2hw_i;

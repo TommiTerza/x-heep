@@ -27,6 +27,7 @@
 data_t output_data[OH_NCHW*OW_NCHW];
 data_t* input_image_ptr = &input_image_nchw[0];
 data_t* output_data_ptr = &output_data[0];
+dma *trash_peri = dma_peri(2);
 
 char im2col_done = 0;
 int ifr_status;
@@ -441,7 +442,7 @@ int verify()
           {    
               if (golden_im2col_nchw[i*OW_NCHW + j] != output_data[i*OW_NCHW + j])
               {
-                  PRINTF("ERROR: Golden: %d, Output: %d, at %d %d %x\n\r", golden_im2col_nchw[i*OW_NCHW + j], output_data[i*OW_NCHW + j], i, j, &output_data[i*OW_NCHW + j]);
+                  PRINTF_DEB("ERROR: Golden: %d, Output: %d, at %d %d %x\n\r", golden_im2col_nchw[i*OW_NCHW + j], output_data[i*OW_NCHW + j], i, j, &output_data[i*OW_NCHW + j]);
                   errors ++;
               }
           }

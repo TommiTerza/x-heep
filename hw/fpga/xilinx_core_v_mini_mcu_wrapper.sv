@@ -65,6 +65,9 @@ module xilinx_core_v_mini_mcu_wrapper
 
 );
 
+  import addr_map_rule_pkg::*;
+  import core_v_mini_mcu_pkg::*;
+
   wire                               clk_gen;
   logic [                      31:0] exit_value;
   wire                               rst_n;
@@ -112,13 +115,58 @@ module xilinx_core_v_mini_mcu_wrapper
   );
 `endif
 
+
+  // External SPC interface signals
+  reg_req_t [0:0] ext_ao_peripheral_req;
+  reg_rsp_t [0:0] ext_ao_peripheral_resp;
+  logic [core_v_mini_mcu_pkg::DMA_CH_NUM-1:0] dma_busy;
+  reg_pkg::reg_req_t ext_periph_slv_req;
+  reg_pkg::reg_rsp_t ext_periph_slv_rsp;
+  logic im2col_spc_done_int_o;
+  logic [core_v_mini_mcu_pkg::NEXT_INT-1:0] intr_vector_ext;
+
+  // Im2col SPC peripheral
+  im2col_spc im2col_spc_i (
+      .clk_i (clk_gen),
+      .rst_ni(rst_n),
+
+      .aopb2im2col_resp_i(ext_ao_peripheral_resp[0]),
+      .im2col2aopb_req_o (ext_ao_peripheral_req[0]),
+
+      .reg_req_i(ext_periph_slv_req),
+      .reg_rsp_o(ext_periph_slv_rsp),
+
+      .dma_done_i(dma_busy),
+      .im2col_spc_done_int_o(im2col_spc_done_int_o)
+  );
+
+  obi_resp_t [DMA_NUM_MASTER_PORTS-1:0] zero_array_resp;
+
+  initial begin
+    for (int i = 0; i < DMA_NUM_MASTER_PORTS; i++) begin
+      zero_array_resp[i].gnt = 1'b0;
+      zero_array_resp[i].rvalid = 1'b0;
+      zero_array_resp[i].rdata = 32'b0;
+    end
+  end
+
+  always_comb begin
+    // All interrupt lines set to zero by default
+    for (int i = 0; i < core_v_mini_mcu_pkg::NEXT_INT; i++) begin
+      intr_vector_ext[i] = 1'b0;
+    end
+    // Re-assign the interrupt lines used here
+    intr_vector_ext[2] = im2col_spc_done_int_o;
+  end
+
+
   x_heep_system #(
       .X_EXT(X_EXT),
       .COREV_PULP(COREV_PULP),
       .FPU(FPU),
       .ZFINX(ZFINX)
   ) x_heep_system_i (
-      .intr_vector_ext_i('0),
+      .intr_vector_ext_i(intr_vector_ext),
       .xif_compressed_if(ext_if),
       .xif_issue_if(ext_if),
       .xif_commit_if(ext_if),
@@ -134,15 +182,15 @@ module xilinx_core_v_mini_mcu_wrapper
       .ext_debug_master_req_o(),
       .ext_debug_master_resp_i('0),
       .ext_dma_read_req_o(),
-      .ext_dma_read_resp_i('0),
+      .ext_dma_read_resp_i(zero_array_resp),
       .ext_dma_write_req_o(),
-      .ext_dma_write_resp_i('0),
+      .ext_dma_write_resp_i(zero_array_resp),
       .ext_dma_addr_req_o(),
-      .ext_dma_addr_resp_i('0),
-      .ext_peripheral_slave_req_o(),
-      .ext_peripheral_slave_resp_i('0),
-      .ext_ao_peripheral_req_i('0),
-      .ext_ao_peripheral_resp_o(),
+      .ext_dma_addr_resp_i(zero_array_resp),
+      .ext_peripheral_slave_req_o(ext_periph_slv_req),
+      .ext_peripheral_slave_resp_i(ext_periph_slv_rsp),
+      .ext_ao_peripheral_req_i(ext_ao_peripheral_req),
+      .ext_ao_peripheral_resp_o(ext_ao_peripheral_resp),
       .external_subsystem_powergate_switch_no(),
       .external_subsystem_powergate_switch_ack_ni('0),
       .external_subsystem_powergate_iso_no(),
@@ -209,7 +257,9 @@ module xilinx_core_v_mini_mcu_wrapper
       .i2s_ws_io(i2s_ws_io),
       .i2s_sd_io(i2s_sd_io),
       .ext_dma_slot_tx_i('0),
-      .ext_dma_slot_rx_i('0)
+      .ext_dma_slot_rx_i('0),
+      .ext_dma_stop_i('0),
+      .dma_done_o(dma_busy)
   );
 
   assign exit_value_o = exit_value[0];

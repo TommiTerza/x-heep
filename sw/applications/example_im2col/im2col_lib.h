@@ -106,7 +106,7 @@
 #define OH_NCHW (CH * FH * FW * BATCH)
 #define OW_NCHW (N_PATCHES_H) * (N_PATCHES_W)
 
-#define START_ID 1
+#define START_ID 0
 
 #define TEST_EN 1
 

@@ -10,7 +10,6 @@ import torch.nn.functional as F
 # output as a list is MANDATORY
 def im2col_function(inputs, parameters):
     inputs = np.array(inputs)
-    print(inputs)
 
     # Extract parameters
     batch_size = next(item['value'] for item in parameters if item['name'] == 'BATCH') 
@@ -53,6 +52,4 @@ def im2col_function(inputs, parameters):
     # Convert the PyTorch tensor to a NumPy array and then to a list (simple array)
     unfolded_array = unfolded_tensor.numpy()
 
-
-    print(unfolded_array.reshape(1, 1, 1, *unfolded_array.shape))
     return unfolded_array.reshape(1, 1, 1, *unfolded_array.shape)
