@@ -1,8 +1,8 @@
 {
   target:
   {
-    name: "pynq-z2"
-    type: "fpga" # or "sim", MANDATORY
+    name: "verilator"
+    type: "sim" # or "sim", MANDATORY
     usbPort: 0 # For FPGA targets
     baudrate: 9600 # For FPGA targets
     iterations: 10 # Set the number of iterations of the verification campaign

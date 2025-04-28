@@ -84,7 +84,6 @@ module im2col_spc_param_fsm
   logic batch_rst;
   logic zeros_rst;
   logic output_data_ptr_rst;
-  logic pipe_rst;
 
   /* Status signals */
   logic im2col_param_done;
@@ -386,7 +385,7 @@ module im2col_spc_param_fsm
       .WIDTH(8)
   ) pipe_reg_left_zeros (
       .clk_i,
-      .rst_ni  (pipe_rst),
+      .rst_ni  (rst_ni),
       .data_in (n_zeros_left_dividend_n),
       .data_out(n_zeros_left_dividend)
   );
@@ -395,7 +394,7 @@ module im2col_spc_param_fsm
       .WIDTH(8)
   ) pipe_reg_top_zeros (
       .clk_i,
-      .rst_ni  (pipe_rst),
+      .rst_ni  (rst_ni),
       .data_in (n_zeros_top_dividend_n),
       .data_out(n_zeros_top_dividend)
   );
@@ -404,7 +403,7 @@ module im2col_spc_param_fsm
       .WIDTH(8)
   ) pipe_reg_right_zeros (
       .clk_i,
-      .rst_ni  (pipe_rst),
+      .rst_ni  (rst_ni),
       .data_in (n_zeros_right_dividend_n),
       .data_out(n_zeros_right_dividend)
   );
@@ -413,7 +412,7 @@ module im2col_spc_param_fsm
       .WIDTH(8)
   ) pipe_reg_bottom_zeros (
       .clk_i,
-      .rst_ni  (pipe_rst),
+      .rst_ni  (rst_ni),
       .data_in (n_zeros_bottom_dividend_n),
       .data_out(n_zeros_bottom_dividend)
   );
@@ -422,7 +421,7 @@ module im2col_spc_param_fsm
       .WIDTH(32)
   ) pipe_reg_index_comp1 (
       .clk_i,
-      .rst_ni  (pipe_rst),
+      .rst_ni  (rst_ni),
       .data_in (index_comp1_n),
       .data_out(index_comp1)
   );
@@ -431,7 +430,7 @@ module im2col_spc_param_fsm
       .WIDTH(32)
   ) pipe_reg_index_comp2 (
       .clk_i,
-      .rst_ni  (pipe_rst),
+      .rst_ni  (rst_ni),
       .data_in (index_comp2_n),
       .data_out(index_comp2)
   );
@@ -440,7 +439,7 @@ module im2col_spc_param_fsm
       .WIDTH(32)
   ) pipe_reg_index_comp3 (
       .clk_i,
-      .rst_ni  (pipe_rst),
+      .rst_ni  (rst_ni),
       .data_in (index_comp3_n),
       .data_out(index_comp3)
   );
@@ -449,7 +448,7 @@ module im2col_spc_param_fsm
       .WIDTH(32)
   ) pipe_reg_index_comp4 (
       .clk_i,
-      .rst_ni  (pipe_rst),
+      .rst_ni  (rst_ni),
       .data_in (index_comp4_n),
       .data_out(index_comp4)
   );
