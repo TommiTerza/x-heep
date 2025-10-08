@@ -57,7 +57,7 @@
         has_spi_slave: "yes"
     }
 
-    ao_peripherals: {
+    base_peripherals: {
         address: 0x20000000
         length:  0x00100000
         soc_ctrl: {
@@ -124,7 +124,7 @@
         }
     }
 
-    peripherals: {
+    user_peripherals: {
         address: 0x30000000
         length:  0x00100000
         rv_plic: {

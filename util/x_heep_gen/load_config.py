@@ -232,7 +232,7 @@ def load_peripherals_config(system: XHeep, config_path: str):
 
     for name, fields in config.items():
         # Base Peripherals
-        if name == "ao_peripherals":
+        if name == "base_peripherals":
             base_peripherals = (
                 BasePeripheralDomain(
                     int(fields["address"], 16), int(fields["length"], 16)
@@ -324,7 +324,7 @@ def load_peripherals_config(system: XHeep, config_path: str):
                 system.add_peripheral_domain(base_peripherals)
 
         # User Peripherals
-        elif name == "peripherals":
+        elif name == "user_peripherals":
             user_peripherals = (
                 UserPeripheralDomain(
                     int(fields["address"], 16), int(fields["length"], 16)

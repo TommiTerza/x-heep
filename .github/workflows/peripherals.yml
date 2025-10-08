@@ -1,4 +1,4 @@
-name: Test peripherals
+name: Test user_peripherals
 on: [push, pull_request]
 
 jobs:
@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/esl-epfl/x-heep-toolchain:latest
-    name: Test peripherals (Same output between hjson and python configuration). All must pass.
+    name: Test user_peripherals (Same output between hjson and python configuration). All must pass.
     steps:
       - name: Checkout the pushed code. 
         uses: actions/checkout@v3

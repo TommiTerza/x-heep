@@ -140,8 +140,8 @@ if __name__ == "__main__":
             data = hjson.load(f)
 
         # Get the info relative to the various peripherals
-        base_peripherals = data["ao_peripherals"]
-        user_peripherals = data["peripherals"]
+        base_peripherals = data["base_peripherals"]
+        user_peripherals = data["user_peripherals"]
 
         # loops through the peripherals and add the useful ones
         scan_peripherals_hjson(base_peripherals)

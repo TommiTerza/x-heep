@@ -4,7 +4,7 @@ X-HEEP
 .. image:: /images/x-heep-outline.png
 
 ``X-HEEP`` (eXtendable Heterogeneous Energy-Efficient Platform) is a RISC-V microcontroller described in SystemVerilog that can be configured to target small and tiny platforms as well as extended to support accelerators.
-The cool thing about X-HEEP is that we provide a simple customizable MCU, so CPUs, common peripherals, memories, etc. so that you can extend it with your own accelerator without modifying the MCU, but just instantiating it in your design.
+The cool thing about X-HEEP is that we provide a simple customizable MCU, so CPUs, common user_peripherals, memories, etc. so that you can extend it with your own accelerator without modifying the MCU, but just instantiating it in your design.
 By doing so, you inherit an IP capable of booting RTOS (such as FreeRTOS) with the whole FW stack, including HAL drivers and SDK, and you can focus on building your special HW or APP supported by the microcontroller.
 
 X-HEEP supports simulation with Verilator, Questasim, etc. Morever, FW can be built and linked by using CMake either with gcc or with clang and/or SEGGER Embedded Studio using gcc. It can be implemented on FPGA, and it supports implementation in Silicon, which is its main (but not only) target.
@@ -32,7 +32,7 @@ The memory subsystem is divided into multiple banks that can have different size
 Peripheral subsystem domain
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The peripheral subsystem includes the general-purpose peripherals that are not commonly used during the processing or acquisition phases but that are a nice-to-have in a multi-functional microcontroller. It includes a general-purpose timer, a platform-level interrupt controller (PLIC), an inter-integrated circuit (I2C) interface, a serial peripheral interface (SPI) and 24 general-purpose input-output (GPIO). This subsystem is connected to the bus through a single interface but features an internal second level of decoding to direct the request to the proper peripheral. The subsystem can be clock-gated to save dynamic power or it can be switched off when not used for a long time.
+The peripheral subsystem includes the general-purpose user_peripherals that are not commonly used during the processing or acquisition phases but that are a nice-to-have in a multi-functional microcontroller. It includes a general-purpose timer, a platform-level interrupt controller (PLIC), an inter-integrated circuit (I2C) interface, a serial peripheral interface (SPI) and 24 general-purpose input-output (GPIO). This subsystem is connected to the bus through a single interface but features an internal second level of decoding to direct the request to the proper peripheral. The subsystem can be clock-gated to save dynamic power or it can be switched off when not used for a long time.
 
 Always-on peripheral subsystem domain
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

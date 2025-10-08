@@ -147,7 +147,7 @@ ${pad.core_v_mini_mcu_interface}
   obi_req_t debug_slave_req;
   obi_resp_t debug_slave_resp;
 
-  // peripherals signals
+  // user_peripherals signals
   obi_req_t ao_peripheral_slave_req;
   obi_resp_t ao_peripheral_slave_resp;
   obi_req_t peripheral_slave_req;

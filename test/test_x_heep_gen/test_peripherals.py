@@ -38,12 +38,12 @@ class PeripheralsDescription:
         with open(output_filename(example, extension), "r") as file:
             content = hjson.load(file)
 
-        self.ao_peripheral_start_address = content["ao_peripheral_start_address"]
-        self.ao_peripheral_size_address = content["ao_peripheral_size_address"]
+        self.base_peripheral_start_address = content["base_peripheral_start_address"]
+        self.base_peripheral_size_address = content["base_peripheral_size_address"]
 
-        # Standardize the ao_peripherals
-        self.ao_peripherals = [p for p in content["ao_peripherals"]]
-        self.ao_peripherals_count = content["ao_peripherals_count"]
+        # Standardize the base_peripherals
+        self.base_peripherals = [p for p in content["base_peripherals"]]
+        self.base_peripherals_count = content["base_peripherals_count"]
         self.dma_ch_count = content["dma_ch_count"]
         self.dma_ch_size = content["dma_ch_size"]
         self.num_dma_master_ports = content["num_dma_master_ports"]
@@ -64,11 +64,11 @@ class PeripheralsDescription:
         except:
             self.pdm2pcm_cic_only = None
 
-        # Standardize the peripherals
+        # Standardize the user_peripherals
         added = 0
-        filtered_peripherals = []
-        # Reconstructs the peripherals list with the is_included field removed
-        for name, info in content["peripherals"].items():
+        filtered_user_peripherals = []
+        # Reconstructs the user_peripherals list with the is_included field removed
+        for name, info in content["user_peripherals"].items():
             if info.get("is_included") == "yes":
                 peripheral_info = dict(info)
                 peripheral_info["name"] = name
@@ -76,44 +76,44 @@ class PeripheralsDescription:
                     "offset"
                 ]  # offset changes between configurations (hardcoded in hjson, computed in python), thus they wan't be the same
                 del peripheral_info["is_included"]
-                filtered_peripherals.append(peripheral_info)
+                filtered_user_peripherals.append(peripheral_info)
                 added += 1
-        self.peripherals = filtered_peripherals
-        self.peripherals_count = added
+        self.user_peripherals = filtered_user_peripherals
+        self.user_peripherals_count = added
 
         self.extension = extension
 
     def __eq__(self, other):
 
         eq = True
-        if self.ao_peripheral_start_address != other.ao_peripheral_start_address:
+        if self.base_peripheral_start_address != other.base_peripheral_start_address:
             eq = False
             print(
-                f"ao_peripheral_start_address: {self.ao_peripheral_start_address} ({self.extension[1:]}) != {other.ao_peripheral_start_address} ({other.extension[1:]})"
+                f"base_peripheral_start_address: {self.base_peripheral_start_address} ({self.extension[1:]}) != {other.base_peripheral_start_address} ({other.extension[1:]})"
             )
-        if self.ao_peripheral_size_address != other.ao_peripheral_size_address:
+        if self.base_peripheral_size_address != other.base_peripheral_size_address:
             eq = False
             print(
-                f"ao_peripheral_size_address: {self.ao_peripheral_size_address} ({self.extension[1:]}) != {other.ao_peripheral_size_address} ({other.extension[1:]})"
+                f"base_peripheral_size_address: {self.base_peripheral_size_address} ({self.extension[1:]}) != {other.base_peripheral_size_address} ({other.extension[1:]})"
             )
-        if len(self.ao_peripherals) != len(other.ao_peripherals):
+        if len(self.base_peripherals) != len(other.base_peripherals):
             eq = False
             print(
-                f"ao_peripherals length mismatch: {len(self.ao_peripherals)} ({self.extension[1:]}) != {len(other.ao_peripherals)} ({other.extension[1:]})"
+                f"base_peripherals length mismatch: {len(self.base_peripherals)} ({self.extension[1:]}) != {len(other.base_peripherals)} ({other.extension[1:]})"
             )
         else:
             for i, (self_p, other_p) in enumerate(
-                zip(self.ao_peripherals, other.ao_peripherals)
+                zip(self.base_peripherals, other.base_peripherals)
             ):
                 if self_p != other_p:
                     eq = False
                     print(
-                        f"ao_peripheral {i}: {self_p} ({self.extension[1:]}) != {other_p} ({other.extension[1:]})"
+                        f"base_peripheral {i}: {self_p} ({self.extension[1:]}) != {other_p} ({other.extension[1:]})"
                     )
-        if self.ao_peripherals_count != other.ao_peripherals_count:
+        if self.base_peripherals_count != other.base_peripherals_count:
             eq = False
             print(
-                f"ao_peripherals_count: {self.ao_peripherals_count} ({self.extension[1:]}) != {other.ao_peripherals_count} ({other.extension[1:]})"
+                f"base_peripherals_count: {self.base_peripherals_count} ({self.extension[1:]}) != {other.base_peripherals_count} ({other.extension[1:]})"
             )
         if self.dma_ch_count != other.dma_ch_count:
             eq = False
@@ -153,24 +153,24 @@ class PeripheralsDescription:
             print(
                 f"peripheral_size_address: {self.peripheral_size_address} ({self.extension[1:]}) != {other.peripheral_size_address} ({other.extension[1:]})"
             )
-        if len(self.peripherals) != len(other.peripherals):
+        if len(self.user_peripherals) != len(other.user_peripherals):
             eq = False
             print(
-                f"peripherals length mismatch: {len(self.peripherals)} ({self.extension[1:]}) != {len(other.peripherals)} ({other.extension[1:]})"
+                f"user_peripherals length mismatch: {len(self.user_peripherals)} ({self.extension[1:]}) != {len(other.user_peripherals)} ({other.extension[1:]})"
             )
         else:
             for i, (self_p, other_p) in enumerate(
-                zip(self.peripherals, other.peripherals)
+                zip(self.user_peripherals, other.user_peripherals)
             ):
                 if self_p != other_p:
                     eq = False
                     print(
                         f"peripheral {i}: {self_p} ({self.extension[1:]}) != {other_p} ({other.extension[1:]})"
                     )
-        if self.peripherals_count != other.peripherals_count:
+        if self.user_peripherals_count != other.user_peripherals_count:
             eq = False
             print(
-                f"peripherals_count: {self.peripherals_count} ({self.extension[1:]}) != {other.peripherals_count} ({other.extension[1:]})"
+                f"user_peripherals_count: {self.user_peripherals_count} ({self.extension[1:]}) != {other.user_peripherals_count} ({other.extension[1:]})"
             )
         if self.pdm2pcm_cic_only != other.pdm2pcm_cic_only:
             eq = False

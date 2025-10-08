@@ -139,9 +139,9 @@ package core_v_mini_mcu_pkg;
   };
 
 ######################################################################
-## Automatically add all base peripherals listed
+## Automatically add all base user_peripherals listed
 ######################################################################
-  // base peripherals
+  // base user_peripherals
   // ---------------------
 
   localparam AO_PERIPHERALS = ${len(base_peripheral_domain.get_peripherals())};
@@ -190,9 +190,9 @@ package core_v_mini_mcu_pkg;
   localparam int unsigned DMA_CH_PORT_SEL_WIDTH = DMA_CH_NUM > 1 ? $clog2(DMA_CH_NUM) : 32'd1;
 
 ######################################################################
-## Automatically add all user peripherals listed
+## Automatically add all user user_peripherals listed
 ######################################################################
-  // user peripherals
+  // user user_peripherals
   // -------------------------
   localparam PERIPHERALS = ${len(user_peripheral_domain.get_peripherals())};
 

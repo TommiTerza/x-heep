@@ -224,7 +224,7 @@ parameters:
     datatype: bool
     paramtype: vlogdefine
     description: |
-      Remove the FIFO between the BUS and the peripherals subsystems
+      Remove the FIFO between the BUS and the user_peripherals subsystems
   SYNTHESIS:
     datatype: bool
     paramtype: vlogdefine

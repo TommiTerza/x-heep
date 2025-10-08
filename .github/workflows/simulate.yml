@@ -18,7 +18,7 @@ jobs:
           conda activate core-v-mini-mcu
           make clean-all
 
-          # All peripherals are included to make sure all apps can be built.
+          # All user_peripherals are included to make sure all apps can be built.
           sed 's/is_included: "no"/is_included: "yes"/' -i configs/ci.hjson
 
           sed 's/num_channels:   0x1/num_channels:   0x4/' -i configs/ci.hjson

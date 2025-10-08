@@ -1,5 +1,5 @@
 ## Writes down all kwargs from mcu_gen, but only peripheral related ones should be checked
-<%! from x_heep_gen.peripherals.abstractions import DataConfiguration %>
+<%! from x_heep_gen.user_peripherals.abstractions import DataConfiguration %>
 
 <%
     user_peripheral_domain = xheep.get_user_peripheral_domain()
@@ -25,10 +25,10 @@
         length: "${debug_size_address}"
     }
 
-    // AO Peripherals
-    ao_peripheral_start_address: "${base_peripheral_domain.get_start_address()}"
-    ao_peripheral_size_address: "${base_peripheral_domain.get_length()}"
-    ao_peripherals: {
+    // Base Peripherals
+    base_peripheral_start_address: "${base_peripheral_domain.get_start_address()}"
+    base_peripheral_size_address: "${base_peripheral_domain.get_length()}"
+    base_peripherals: {
         % for peripheral in base_peripheral_domain.get_peripherals():
         ${peripheral.get_name()}: {
             offset: ${peripheral.get_address()}
@@ -39,7 +39,7 @@
         }
         % endfor
     }
-    ao_peripherals_count: ${len(base_peripheral_domain.get_peripherals())}
+    base_peripherals_count: ${len(base_peripheral_domain.get_peripherals())}
 
     // DMA Configuration
     dma_ch_count: "${dma.get_num_channels()}"
@@ -53,10 +53,10 @@
     zero_padding_en: "${dma.get_zero_padding()}"
     dma_xbar_masters_array: "${dma.get_xbar_array()}"
 
-    // Optional Peripherals
-    peripheral_start_address: "${user_peripheral_domain.get_start_address()}"
-    peripheral_size_address: "${user_peripheral_domain.get_length()}"
-    peripherals: {
+    // User Peripherals
+    user_peripheral_start_address: "${user_peripheral_domain.get_start_address()}"
+    user_peripheral_size_address: "${user_peripheral_domain.get_length()}"
+    user_peripherals: {
         % for peripheral in user_peripheral_domain.get_peripherals():
         ${peripheral.get_name()}: {
             offset: ${peripheral.get_address()}
@@ -67,7 +67,7 @@
         }
         % endfor
     }
-    peripherals_count: ${len(user_peripheral_domain.get_peripherals())}
+    user_peripherals_count: ${len(user_peripheral_domain.get_peripherals())}
 
     %if pdm2pcm != None:
     // PDM2PCM configuration

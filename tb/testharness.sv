@@ -311,7 +311,7 @@ module testharness #(
 
   // Testbench external bus
   // ----------------------
-  // The external bus connects the external peripherals among them and to
+  // The external bus connects the external user_peripherals among them and to
   // the corresponding X-HEEP slave port (to the internal system bus).
   ext_bus #(
       .EXT_XBAR_NMASTER(EXT_XBAR_NMASTER),

@@ -32,7 +32,7 @@ extern "C" {
 #define DEBUG_SIZE 0x${debug_size_address}
 #define DEBUG_END_ADDRESS (DEBUG_START_ADDRESS + DEBUG_SIZE)
 
-// base peripherals
+// base user_peripherals
 #define AO_PERIPHERAL_START_ADDRESS ${hex(base_peripheral_domain.get_start_address())}
 #define AO_PERIPHERAL_SIZE ${hex(base_peripheral_domain.get_length())}
 #define AO_PERIPHERAL_END_ADDRESS (AO_PERIPHERAL_START_ADDRESS + AO_PERIPHERAL_SIZE)
@@ -53,7 +53,7 @@ extern "C" {
 #define DMA_HW_FIFO_MODE ${dma.get_hw_fifo_mode()}
 #define DMA_ZERO_PADDING ${dma.get_zero_padding()}
 
-// user peripherals
+// user user_peripherals
 #define PERIPHERAL_START_ADDRESS ${hex(user_peripheral_domain.get_start_address())}
 #define PERIPHERAL_SIZE ${hex(user_peripheral_domain.get_length())}
 #define PERIPHERAL_END_ADDRESS (PERIPHERAL_START_ADDRESS + PERIPHERAL_SIZE)
@@ -66,7 +66,7 @@ extern "C" {
 #define ${peripheral.get_name().upper()}_IS_INCLUDED
 %endfor
 
-// This section is here to have default values for the peripherals that are not included in the user peripheral domain. Their are used in their respective structs.h files.
+// This section is here to have default values for the user_peripherals that are not included in the user peripheral domain. Their are used in their respective structs.h files.
 // Some other files, like applications main c file, use also some peripheral attributes but the file is not generated if the peripheral is not included in the user peripheral domain.
 % if not user_peripheral_domain.contains_peripheral('rv_plic'):
 #define RV_PLIC_START_ADDRESS 0
