@@ -33,6 +33,8 @@ class CFileGen:
 
     # Add a new binary file
     def add_binary(self, name: str, file: str, prefix_pad: int = 0, suffix_pad: int = 0) -> None:
+        if prefix_pad < 0 or suffix_pad < 0:
+            raise ValueError("prefix_pad and suffix_pad must be non-negative")
         self.binaries.append((name, file, prefix_pad, suffix_pad))
 
     # Add a new list of commands
