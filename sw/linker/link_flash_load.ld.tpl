@@ -165,7 +165,17 @@ SECTIONS {
         PROVIDE(__${section.name}_start = .);
         _lma_${section.name}_start = LOADADDR(.${section.name});
         . = ALIGN(4);
-        *(.xheep_${section.name})
+        % for subsec_group in section.subsections:
+        % if subsec_group.provide_start:
+        PROVIDE(__${subsec_group.name}_start = .);
+        % endif
+        % for subsec_name in subsec_group.subsections_names:
+        *(.${subsec_name})
+        % endfor
+        % if subsec_group.provide_start:
+        PROVIDE(__${subsec_group.name}_end = .);
+        % endif
+        % endfor
         . = ALIGN(4);
     } >ram${i} AT >FLASH${i}
 
