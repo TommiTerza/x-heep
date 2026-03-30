@@ -123,6 +123,9 @@ class MemorySS:
         # Add all new banks if no error was raised
         self._ram_banks += banks
 
+        # Bank ID, used to generate the index of the bank group
+        bank_id = banks[0].name()
+
         indices = range(first_il, first_il + num)
         self._ram_banks_il_idx += indices
         self._ram_banks_il_groups.append(
@@ -131,10 +134,11 @@ class MemorySS:
                 bank_size * num * 1024,
                 len(banks),
                 group_name,
-                banks
+                bank_id,
+                banks,
             )
         )
-        
+
         self._il_banks_present = True
 
     def override_ram_banks(self, numbanks: int):
@@ -186,7 +190,7 @@ class MemorySS:
             raise ValueError("linker section names should be unique")
 
         self._used_section_names.add(name)
-        
+
         if interleaved:
             if il_group_name is None:
                 raise ValueError(
@@ -194,7 +198,11 @@ class MemorySS:
                 )
 
             group = next(
-                (group for group in self._ram_banks_il_groups if group.first_name == il_group_name),
+                (
+                    group
+                    for group in self._ram_banks_il_groups
+                    if group.group_name == il_group_name
+                ),
                 None,
             )
             if group is None:

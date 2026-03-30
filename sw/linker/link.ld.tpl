@@ -304,7 +304,7 @@ SECTIONS
     % for subsec_name in subsec_group.subsections_names:
     *(.${subsec_name})
     % endfor
-    % if subsec_group.provide_start:
+    % if subsec_group.provide_end:
     PROVIDE(__${subsec_group.name}_end = .);
     % endif
     % endfor

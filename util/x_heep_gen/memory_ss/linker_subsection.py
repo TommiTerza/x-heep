@@ -32,7 +32,7 @@ class LinkerSubsection:
         name: str,
         subsections_names: List[str],
         provide_start: bool = False,
-        provide_end: bool = False
+        provide_end: bool = False,
     ):
         self.name = name
         self.subsections_names = subsections_names
@@ -67,4 +67,3 @@ class LinkerSubsection:
             raise ValueError("subsections_names should not be empty")
         if any(subsection == "" for subsection in self.subsections_names):
             raise ValueError("subsections_names should not contain empty strings")
-        

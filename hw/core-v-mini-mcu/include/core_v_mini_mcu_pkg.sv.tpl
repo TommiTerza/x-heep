@@ -81,7 +81,7 @@ package core_v_mini_mcu_pkg;
   localparam logic [31:0] RAM_IL${i}_START_ADDRESS = 32'h${f'{group.start:08X}'};
   localparam logic [31:0] RAM_IL${i}_SIZE = 32'h${f'{group.size:08X}'};
   localparam logic [31:0] RAM_IL${i}_END_ADDRESS = RAM_IL${i}_START_ADDRESS + RAM_IL${i}_SIZE;
-  localparam logic [31:0] RAM_IL${i}_IDX = RAM${group.first_name}_IDX;
+  localparam logic [31:0] RAM_IL${i}_IDX = RAM${group.id}_IDX;
 % endfor
 
   localparam logic[31:0] DEBUG_START_ADDRESS = 32'h${debug_start_address};
