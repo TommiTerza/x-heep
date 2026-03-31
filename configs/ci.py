@@ -57,12 +57,11 @@ def config():
     memory_ss.add_linker_section(LinkerSection("data", 0x000018000, None))
 
     # Interleaved subsection: it creates a "xheep_data_interleaved" subsection in the "data_interleaved" section, associated with the "interleaved_group_0" banks.
-    egpu_subsection = LinkerSubsection(
-        name="xheep_data_interleaved", provide_start=True, provide_end=True
-    )
+    app_subsection = LinkerSubsection("xheep_data_interleaved")
+
     memory_ss.add_linker_section_for_banks(
         "data_interleaved",
-        subsections=[egpu_subsection],
+        subsections=[app_subsection],
         interleaved=True,
         il_group_name="interleaved_group_0",
     )

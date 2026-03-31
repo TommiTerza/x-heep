@@ -19,6 +19,8 @@ class LinkerSubsection:
     The name can be anything that does not collide with subsection names used by the linker,
     except code and data that are used to configure the size of the code and data part.
     code and data do not only contain the actual .code and .data section but other related sections.
+
+    If None, it defaults to [name]
     """
 
     provide_start: bool
@@ -30,12 +32,17 @@ class LinkerSubsection:
     def __init__(
         self,
         name: str,
-        subsections_names: List[str],
+        subsections_names: List[str] = None,
         provide_start: bool = False,
         provide_end: bool = False,
     ):
         self.name = name
-        self.subsections_names = subsections_names
+        # Default to a single input section with the same name as the region.
+        self.subsections_names = (
+            [name]
+            if subsections_names is None
+            else list(subsections_names)
+        )
         self.provide_start = provide_start
         self.provide_end = provide_end
 
