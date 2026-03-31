@@ -133,7 +133,7 @@ input section `.foo`.
 
 There are are two functions to add linker sections:
 
-#### add_linlker_section():
+#### add_linker_section():
 
 ```{code} python
 memory_ss.add_linker_section(LinkerSection("data", 0x0000E800, None))
@@ -156,9 +156,9 @@ To implement this, we use `add_linker_section_for_banks()`, which allows the cre
 
 Furthermore, it's possible to define a set of sub-sections (linker input sections) and to specify if we want to target an interleaved bank or not.
 
-Since in `xheep_gen` interleaved banks are threated as _groups of banks_, if we want to target a specific group we need to provide their name.
+Since in `xheep_gen` interleaved banks are treated as _groups of banks_, if we want to target a specific group we need to provide their name.
 
-For example, this will produce an interleaved group of 4 banks with a total size of 32kB, named *il_banks_group_0*:
+For example, this will produce an interleaved group of 4 32kB banks, named *il_banks_group_0*:
 
 ```{code} Python
 memory_ss.add_ram_banks_il(4, 32, "il_banks_group_0")
@@ -178,12 +178,14 @@ memory_ss.add_linker_section_for_banks("data_interleaved", interleaved=True, il_
 
 And this will generate:
 
+```{code} c
 .data_interleaved :
 {
   . = ALIGN(4);
   *(.data_interleaved)
   . = ALIGN(4);
 } >ram2
+```
 
 If needed, it's possible to have multiple *sub-sections*, defined by the `LinkerSubsection` class. 
 

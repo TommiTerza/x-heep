@@ -10,6 +10,7 @@ from x_heep_gen.cpu.cpu import CPU
 from x_heep_gen.bus_type import BusType
 from x_heep_gen.memory_ss.memory_ss import MemorySS
 from x_heep_gen.memory_ss.linker_section import LinkerSection
+from x_heep_gen.memory_ss.linker_subsection import LinkerSubsection
 from x_heep_gen.peripherals.base_peripherals import (
     SOC_ctrl,
     Bootrom,
@@ -50,11 +51,22 @@ def config():
 
     memory_ss = MemorySS()
     memory_ss.add_ram_banks([32] * 6)
-    memory_ss.add_ram_banks_il(
-        4, 16, "data_interleaved"
-    )  # the name is used by example_matadd_interleaved as .xheep_data_interleaved
+    memory_ss.add_ram_banks_il(4, 16, "interleaved_group_0")
+
     memory_ss.add_linker_section(LinkerSection.by_size("code", 0, 0x000018000))
     memory_ss.add_linker_section(LinkerSection("data", 0x000018000, None))
+
+    # Interleaved subsection: it creates a "xheep_data_interleaved" subsection in the "data_interleaved" section, associated with the "interleaved_group_0" banks.
+    egpu_subsection = LinkerSubsection(
+        name="xheep_data_interleaved", provide_start=True, provide_end=True
+    )
+    memory_ss.add_linker_section_for_banks(
+        "data_interleaved",
+        subsections=[egpu_subsection],
+        interleaved=True,
+        il_group_name="interleaved_group_0",
+    )
+
     system.set_memory_ss(memory_ss)
 
     # Peripheral domains initialization
