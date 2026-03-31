@@ -39,9 +39,7 @@ class LinkerSubsection:
         self.name = name
         # Default to a single input section with the same name as the region.
         self.subsections_names = (
-            [name]
-            if subsections_names is None
-            else list(subsections_names)
+            [name] if subsections_names is None else list(subsections_names)
         )
         self.provide_start = provide_start
         self.provide_end = provide_end
