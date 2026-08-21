@@ -50,6 +50,12 @@ module i2s #(
   logic data_rx_ready;
   logic data_rx_overflow;
 
+  logic [MaxWordWidth-1:0] data_tx;
+  logic data_tx_valid;
+  logic data_tx_ready;
+  logic data_tx_underflow;
+  logic data_tx_overflow;
+
   logic event_i2s_event;
 
   logic [$clog2(MaxWordWidth)-1:0] word_width;
@@ -66,10 +72,12 @@ module i2s #(
   // STATUS signal
   assign hw2reg.status.rx_data_ready.d = data_rx_valid;
   assign hw2reg.status.rx_overflow.d = data_rx_overflow;
+  assign hw2reg.status.tx_ready.d = data_tx_ready;
+  assign hw2reg.status.tx_underflow.d = data_tx_underflow;
+  assign hw2reg.status.tx_overflow.d = data_tx_overflow;
 
   // IO
-  assign i2s_sd_oe_o = 1'b0;
-  assign i2s_sd_o = 1'b0;
+  assign i2s_sd_oe_o = reg2hw.control.en_io.q & reg2hw.control.en_tx.q;
   assign i2s_sck_oe_o = reg2hw.control.en_io.q;
   assign i2s_ws_oe_o = reg2hw.control.en_io.q;
   unread _sck_i (i2s_sck_i);
@@ -80,7 +88,23 @@ module i2s #(
   assign hw2reg.control.reset_watermark.d = 1'b0;
   assign hw2reg.control.reset_rx_overflow.de = ~data_rx_overflow;
   assign hw2reg.control.reset_rx_overflow.d = 1'b0;
+  assign hw2reg.control.reset_tx_underflow.de = ~data_tx_underflow;
+  assign hw2reg.control.reset_tx_underflow.d = 1'b0;
+  assign hw2reg.control.reset_tx_overflow.de = ~data_tx_overflow;
+  assign hw2reg.control.reset_tx_overflow.d = 1'b0;
 
+  assign data_tx = reg2hw.txdata.q;
+  assign data_tx_valid = reg2hw.txdata.qe;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (~rst_ni) begin
+      data_tx_overflow <= 1'b0;
+    end else if (reg2hw.control.reset_tx_overflow.q) begin
+      data_tx_overflow <= 1'b0;
+    end else if (reg2hw.txdata.qe && !data_tx_ready) begin
+      data_tx_overflow <= 1'b1;
+    end
+  end
 
 
   // Register logic
@@ -110,9 +134,11 @@ module i2s #(
       .en_ws_i(reg2hw.control.en_ws.q),
       .en_rx_left_i(reg2hw.control.en_rx.q[0]),
       .en_rx_right_i(reg2hw.control.en_rx.q[1]),
+      .en_tx_i(reg2hw.control.en_tx.q),
 
       .sck_o(i2s_sck_o),
       .ws_o (i2s_ws_o),
+      .sd_o (i2s_sd_o),
       .sd_i (i2s_sd_i),
 
       .cfg_clock_div_i(reg2hw.clkdividx.q),
@@ -123,10 +149,16 @@ module i2s #(
       .data_rx_valid_o(data_rx_valid),
       .data_rx_ready_i(data_rx_ready),
 
+      .data_tx_i(data_tx),
+      .data_tx_valid_i(data_tx_valid),
+      .data_tx_ready_o(data_tx_ready),
+
       .clear_rx_overflow_i(reg2hw.control.reset_rx_overflow.q),
+      .clear_tx_underflow_i(reg2hw.control.reset_tx_underflow.q),
 
       .running_o(hw2reg.status.running.d),
-      .data_rx_overflow_o(data_rx_overflow)
+      .data_rx_overflow_o(data_rx_overflow),
+      .data_tx_underflow_o(data_tx_underflow)
   );
 
 

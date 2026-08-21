@@ -69,9 +69,9 @@ package testharness_pkg;
 
   //slave encoder
   % if user_peripheral_domain.contains_peripheral('serial_link_reg'):
-    localparam EXT_NPERIPHERALS = 7;
+    localparam EXT_NPERIPHERALS = 8;
   %else: 
-    localparam EXT_NPERIPHERALS = 6;  
+    localparam EXT_NPERIPHERALS = 7;
   %endif
   
   // Memcopy controller (external peripheral example)
@@ -118,6 +118,17 @@ package testharness_pkg;
     localparam logic [31:0] SL_REG_IDX = 32'd6;
   %endif
 
+  // External I2S TX sink test peripheral
+  % if user_peripheral_domain.contains_peripheral('serial_link_reg'):
+    localparam logic [31:0] I2S_TX_SINK_START_ADDRESS = core_v_mini_mcu_pkg::EXT_PERIPHERAL_START_ADDRESS + 32'h07000;
+    localparam logic [31:0] I2S_TX_SINK_IDX = 32'd7;
+  %else:
+    localparam logic [31:0] I2S_TX_SINK_START_ADDRESS = core_v_mini_mcu_pkg::EXT_PERIPHERAL_START_ADDRESS + 32'h06000;
+    localparam logic [31:0] I2S_TX_SINK_IDX = 32'd6;
+  %endif
+  localparam logic [31:0] I2S_TX_SINK_SIZE = 32'h100;
+  localparam logic [31:0] I2S_TX_SINK_END_ADDRESS = I2S_TX_SINK_START_ADDRESS + I2S_TX_SINK_SIZE;
+
   localparam addr_map_rule_t [EXT_NPERIPHERALS-1:0] EXT_PERIPHERALS_ADDR_RULES = '{
       '{
           idx: MEMCOPY_CTRL_IDX,
@@ -141,6 +152,12 @@ package testharness_pkg;
       ,
       '{idx: SL_REG_IDX, start_addr: SL_REG_START_ADDRESS, end_addr: SL_REG_END_ADDRESS}
       %endif
+      ,
+      '{
+          idx: I2S_TX_SINK_IDX,
+          start_addr: I2S_TX_SINK_START_ADDRESS,
+          end_addr: I2S_TX_SINK_END_ADDRESS
+      }
   };
 
   localparam int unsigned EXT_PERIPHERALS_PORT_SEL_WIDTH = EXT_NPERIPHERALS > 1 ? $clog2(

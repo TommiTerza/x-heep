@@ -122,6 +122,7 @@ module testharness #(
 
   logic iffifo_in_ready, iffifo_out_valid;
   logic iffifo_int_o;
+  logic i2s_mic_enable;
 
   // Im2col SPC interrupt signal
   logic im2col_spc_done_int_o;
@@ -677,6 +678,20 @@ module testharness #(
           .iffifo_int_o(iffifo_int_o)
       );
 
+      i2s_tx_sink #(
+          .reg_req_t(reg_req_t),
+          .reg_rsp_t(reg_rsp_t)
+      ) i2s_tx_sink_i (
+          .clk_i,
+          .rst_ni,
+          .reg_req_i(ext_periph_slv_req[testharness_pkg::I2S_TX_SINK_IDX]),
+          .reg_rsp_o(ext_periph_slv_rsp[testharness_pkg::I2S_TX_SINK_IDX]),
+          .i2s_sck_i(gpio[20]),
+          .i2s_ws_i(gpio[21]),
+          .i2s_sd_i(gpio[22]),
+          .i2s_mic_enable_o(i2s_mic_enable)
+      );
+
       addr_decode #(
           .NoIndices(testharness_pkg::EXT_NPERIPHERALS),
           .NoRules(testharness_pkg::EXT_NPERIPHERALS),
@@ -726,6 +741,7 @@ module testharness #(
       // I2s "microphone"/rx example
       i2s_microphone i2s_microphone_i (
           .rst_ni(rst_ni),
+          .enable_i(i2s_mic_enable),
           .i2s_sck_i(gpio[20]),
           .i2s_ws_i(gpio[21]),
           .i2s_sd_o(gpio[22])
