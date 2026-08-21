@@ -10,14 +10,19 @@
 create_clock -add -name spi_slave_clk_pin -period 16.000 -waveform {0.000 8.000} \
   [get_ports {spi_slave_sck_io}]
 
-# Treat JTAG TAP clocking as asynchronous to the main X-HEEP system clock.
+# Keep the independent VPK180 debug/PL clock domains asynchronous. These clocks
+# are created by different IP XDCs and otherwise Vivado tries to time them as
+# related clocks even though they do not have a common primary source.
+#
 # The AXI JTAG IP XDC creates the generated TCK clock on tck_i_reg/Q, so do not
 # create another clock here; collect the IP-owned clock from the generated pin.
 set_clock_groups -quiet -asynchronous \
-  -group [get_clocks -quiet -include_generated_clocks -of_objects \
-    [get_ports -quiet {lpddr4_clk3_clk_p}]] \
-  -group [get_clocks -quiet -of_objects \
-    [get_pins -quiet -hierarchical -filter {NAME =~ "*/axi_jtag/inst/u_jtag_proc/tck_i_reg/Q"}]]
+  -group [get_clocks -quiet -include_generated_clocks {clkout1_primitive}] \
+  -group [concat \
+    [get_clocks -quiet -include_generated_clocks {clk_pl_0}] \
+    [get_clocks -quiet -of_objects \
+      [get_pins -quiet -hierarchical -filter {NAME =~ "*/axi_jtag/inst/u_jtag_proc/tck_i_reg/Q"}]]] \
+  -group [get_clocks -quiet {spi_slave_clk_pin}]
 
 # False paths
 set_false_path -quiet -from [get_pins -quiet \

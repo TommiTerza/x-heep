@@ -221,7 +221,7 @@ connect_bd_intf_net [get_bd_intf_ports UART_0] [get_bd_intf_pins axi_uartlite_0/
 # -----------------------------------------------------------------------------
 
 set axi_jtag [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_jtag:1.0 axi_jtag]
-set_property CONFIG.C_TCK_CLOCK_RATIO {10} [get_bd_cells axi_jtag]
+set_property CONFIG.C_TCK_CLOCK_RATIO {20} [get_bd_cells axi_jtag]
 
 set axi_smc [create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 axi_smc]
 set_property -dict [list \
