@@ -18,10 +18,8 @@ create_clock -add -name spi_slave_clk_pin -period 16.000 -waveform {0.000 8.000}
 # create another clock here; collect the IP-owned clock from the generated pin.
 set_clock_groups -quiet -asynchronous \
   -group [get_clocks -quiet -include_generated_clocks {clkout1_primitive}] \
-  -group [concat \
-    [get_clocks -quiet -include_generated_clocks {clk_pl_0}] \
-    [get_clocks -quiet -of_objects \
-      [get_pins -quiet -hierarchical -filter {NAME =~ "*/axi_jtag/inst/u_jtag_proc/tck_i_reg/Q"}]]] \
+  -group [get_clocks -quiet -include_generated_clocks \
+    {clk_pl_0 xilinx_ps_wizard_wrapper_i/xilinx_ps_wizard_i/axi_jtag/inst/u_jtag_proc/tck_i_reg/Q}] \
   -group [get_clocks -quiet {spi_slave_clk_pin}]
 
 # False paths
