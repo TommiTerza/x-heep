@@ -232,9 +232,12 @@ module xilinx_core_v_mini_mcu_wrapper
 `elsif FPGA_GENESYS2
   assign rst_n = rst_i;
 `elsif FPGA_VPK180
+`ifdef PS_ENABLE
   wire cips_rst_n;
-  // TODO: for now system reset of pl is ignored.
+  assign rst_n = cips_rst_n & ~rst_i;
+`else
   assign rst_n = ~rst_i;
+`endif
 `else
   assign rst_n = !rst_i;
 `endif
@@ -565,6 +568,8 @@ module xilinx_core_v_mini_mcu_wrapper
       .ext_peripheral_slave_resp_i('0),
       .ext_ao_peripheral_req_i('0),
       .ext_ao_peripheral_resp_o(),
+      .hw_fifo_req_o(),
+      .hw_fifo_resp_i('0),
       .cpu_subsystem_powergate_switch_no(),
       .cpu_subsystem_powergate_switch_ack_ni('0),
       .peripheral_subsystem_powergate_switch_no(),
@@ -621,11 +626,7 @@ module xilinx_core_v_mini_mcu_wrapper
       .ddr_rcv_clk_i(1'b0),
       .ddr_snd_clk_o(),
 `endif
-`ifdef FPGA_VPK180
       .spi_slave_sck_i(spi_slave_sck_io),
-`else
-      .spi_slave_sck_io(spi_slave_sck_io),
-`endif
       .spi_slave_cs_io(spi_slave_cs_io),
       .spi_slave_miso_io(spi_slave_miso_io),
       .spi_slave_mosi_io(spi_slave_mosi_io),

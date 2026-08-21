@@ -111,9 +111,9 @@ filesets:
     files:
     - constraints/vpk180/pin_assign.xdc
     - constraints/vpk180/constraints.xdc
-    - constraints/common/spi_slave.xdc
-    - constraints/common/jtag.xdc
-    - constraints/common/sync.xdc
+    - constraints/vpk180/spi_slave.xdc
+    - constraints/vpk180/jtag.xdc
+    - constraints/vpk180/sync.xdc
     file_type: xdc
 
   xdc-fpga-aup-zu3:

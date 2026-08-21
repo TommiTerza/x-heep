@@ -10,13 +10,13 @@
 
 // PS-side physical DDR base used by the VPK180 NoC remap.
 // This must match CONFIG.REMAPS in hw/fpga/xheep_fpga_support/scripts/vpk180/xilinx_generate_ps_wizard.tcl:
-//   0xF0000000 -> 0x0000000801000000, size 16 MiB.
+//   0xC0000000 -> 0x0000000800000000, size 1 GiB.
 #ifndef VPK180_DDR_AXI_REMAP_BASE
-#define VPK180_DDR_AXI_REMAP_BASE 0x0000000801000000ULL
+#define VPK180_DDR_AXI_REMAP_BASE 0x0000000800000000ULL
 #endif
 
 #ifndef VPK180_DDR_AXI_REMAP_SIZE_BYTES
-#define VPK180_DDR_AXI_REMAP_SIZE_BYTES 0x01000000ULL
+#define VPK180_DDR_AXI_REMAP_SIZE_BYTES 0x40000000ULL
 #endif
 
 // Physical DDR address written by PS Linux. Override from the build command.

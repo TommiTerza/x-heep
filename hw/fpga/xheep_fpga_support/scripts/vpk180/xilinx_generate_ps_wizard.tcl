@@ -183,12 +183,15 @@ set axi_noc_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_noc:1.1 axi_noc_
 
 
 connect_bd_intf_net [get_bd_intf_pins axi_noc_1/M00_INI] [get_bd_intf_pins axi_noc_0/S00_INI]
-set_property -dict [list CONFIG.CONNECTIONS {M00_INI {read_bw {500} write_bw {500}}} CONFIG.REMAPS {M00_INI {{0xF000_0000 0x0000_0008_0100_0000 16M}}}] [get_bd_intf_pins /axi_noc_1/S00_AXI]
+set_property -dict [list \
+  CONFIG.CONNECTIONS {M00_INI {read_bw {500} write_bw {500}}} \
+  CONFIG.REMAPS {M00_INI {{0xC000_0000 0x0000_0008_0000_0000 1G}}} \
+] [get_bd_intf_pins /axi_noc_1/S00_AXI]
 
 ### DDR AXI interface :
 
 
-create_bd_port -dir I -type clk -freq_hz 10000000 ddr_clk_i
+create_bd_port -dir I -type clk -freq_hz 50000000 ddr_clk_i
 set_property -dict [list CONFIG.CLK_DOMAIN [get_property CONFIG.CLK_DOMAIN [get_bd_pins axi_noc_1/aclk0]]] [get_bd_ports ddr_clk_i]
 
 connect_bd_net [get_bd_pins /axi_noc_1/aclk0] [get_bd_ports ddr_clk_i]
