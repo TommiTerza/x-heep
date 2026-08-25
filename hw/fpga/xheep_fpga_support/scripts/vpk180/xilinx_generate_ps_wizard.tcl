@@ -254,21 +254,6 @@ connect_bd_net [get_bd_pins axi_uartlite_0/interrupt] [get_bd_pins ilconcat_0/In
 set util_ds_buf_0 [create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.2 util_ds_buf_0]
 set_property CONFIG.C_BUF_TYPE {BUFG} $util_ds_buf_0
 
-# Capture the JTAG signals at the PL wrapper boundary.  The ILA uses the
-# independent PL reference clock so a missing TCK is itself observable.
-set ila_jtag [create_bd_cell -type ip -vlnv xilinx.com:ip:ila:6.2 ila_jtag]
-set_property -dict [list \
-  CONFIG.C_DATA_DEPTH {4096} \
-  CONFIG.C_NUM_OF_PROBES {5} \
-  CONFIG.C_PROBE0_WIDTH {5} \
-  CONFIG.C_PROBE1_WIDTH {1} \
-  CONFIG.C_PROBE2_WIDTH {1} \
-  CONFIG.C_PROBE3_WIDTH {1} \
-  CONFIG.C_PROBE4_WIDTH {1} \
-] $ila_jtag
-
-
-
 # set axi_quad_spi [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_quad_spi:3.2 axi_quad_spi]
 # set_property -dict [list \
 #   CONFIG.C_SPI_MODE {2} \
@@ -300,8 +285,7 @@ connect_bd_net [get_bd_pins versal_cips_0/pl0_ref_clk] \
   [get_bd_pins rst_versal_cips/slowest_sync_clk] \
   [get_bd_pins axi_jtag/s_axi_aclk] \
   [get_bd_pins axi_gpio/s_axi_aclk] \
-  [get_bd_pins axi_uartlite_0/s_axi_aclk] \
-  [get_bd_pins ila_jtag/clk]
+  [get_bd_pins axi_uartlite_0/s_axi_aclk]
 #  [get_bd_pins axi_quad_spi/s_axi_aclk] \
 #  [get_bd_pins axi_quad_spi/ext_spi_clk] 
 
@@ -326,23 +310,18 @@ connect_bd_net [get_bd_pins rst_versal_cips/peripheral_aresetn] \
 # -----------------------------------------------------------------------------
 
 connect_bd_net [get_bd_pins axi_gpio/gpio_io_o] \
-  [get_bd_ports ps_gpio_o] \
-  [get_bd_pins ila_jtag/probe0]
+  [get_bd_ports ps_gpio_o]
 connect_bd_net [get_bd_ports ps_gpio_i]          [get_bd_pins axi_gpio/gpio2_io_i]
 
 connect_bd_net [get_bd_pins axi_jtag/tck] [get_bd_pins util_ds_buf_0/BUFG_I]
 connect_bd_net [get_bd_pins util_ds_buf_0/BUFG_O] \
-  [get_bd_ports ps_tck_o] \
-  [get_bd_pins ila_jtag/probe1]
+  [get_bd_ports ps_tck_o]
 connect_bd_net [get_bd_pins axi_jtag/tms] \
-  [get_bd_ports ps_tms_o] \
-  [get_bd_pins ila_jtag/probe2]
+  [get_bd_ports ps_tms_o]
 connect_bd_net [get_bd_pins axi_jtag/tdi] \
-  [get_bd_ports ps_tdi_o] \
-  [get_bd_pins ila_jtag/probe3]
+  [get_bd_ports ps_tdi_o]
 connect_bd_net [get_bd_ports ps_tdo_i] \
-  [get_bd_pins axi_jtag/tdo] \
-  [get_bd_pins ila_jtag/probe4]
+  [get_bd_pins axi_jtag/tdo]
 
 # Only SPI interrupt used for now
 # connect_bd_net [get_bd_pins axi_quad_spi/ip2intc_irpt] [get_bd_pins ilconcat_0/In1]
