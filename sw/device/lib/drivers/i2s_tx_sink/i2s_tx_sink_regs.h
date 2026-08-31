@@ -16,8 +16,7 @@ extern "C" {
 // Register width
 #define I2S_TX_SINK_PARAM_REG_WIDTH 32
 
-// Sink control. Bit 0 enables the dummy microphone, bit 1 enables TX
-// capture.
+// Sink control. Bit 0 enables TX capture.
 #define I2S_TX_SINK_CONTROL_REG_OFFSET 0x0
 
 // Decoded I2S TX sample FIFO output

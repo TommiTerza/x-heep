@@ -81,8 +81,7 @@ module peripheral_subsystem #(
     output logic i2s_ws_o,
     output logic i2s_ws_oe_o,
     input  logic i2s_ws_i,
-    output logic i2s_sd_o,
-    output logic i2s_sd_oe_o,
+    output logic i2s_sd_tx_o,
     input  logic i2s_sd_i,
     output logic i2s_rx_valid_o,
 
@@ -578,8 +577,7 @@ module peripheral_subsystem #(
       .i2s_ws_o(i2s_ws_o),
       .i2s_ws_oe_o(i2s_ws_oe_o),
       .i2s_ws_i(i2s_ws_i),
-      .i2s_sd_o(i2s_sd_o),
-      .i2s_sd_oe_o(i2s_sd_oe_o),
+      .i2s_sd_tx_o(i2s_sd_tx_o),
       .i2s_sd_i(i2s_sd_i),
       .intr_i2s_event_o(i2s_intr_event),
       .i2s_rx_valid_o(i2s_rx_valid_o)
@@ -590,8 +588,7 @@ module peripheral_subsystem #(
   assign i2s_sck_o        = 1'b0;
   assign i2s_ws_oe_o      = 1'b0;
   assign i2s_ws_o         = 1'b0;
-  assign i2s_sd_oe_o      = 1'b0;
-  assign i2s_sd_o         = 1'b0;
+  assign i2s_sd_tx_o      = 1'b0;
   assign i2s_intr_event   = 1'b0;
   assign i2s_rx_valid_o   = 1'b0;
 % endif

@@ -21,8 +21,8 @@ module i2s_tx_sink_deserializer #(
   logic                    s_ws_edge;
   logic                    r_started;
   logic [CounterWidth-1:0] r_count_bit;
-  logic [WordWidth-1:0]    r_shiftreg;
-  logic [WordWidth-1:0]    s_shiftreg;
+  logic [   WordWidth-1:0] r_shiftreg;
+  logic [   WordWidth-1:0] s_shiftreg;
 
   assign s_ws_edge = ws_i ^ r_ws_old;
 

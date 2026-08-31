@@ -4,14 +4,13 @@
 
 module i2s_microphone (
     input logic rst_ni,
-    input logic enable_i,
 
     // i2s interface ports
     input logic i2s_sck_i,
     input logic i2s_ws_i,
 
     // output ports
-    output wire i2s_sd_o
+    output logic i2s_sd_o
 );
 
   logic [31:0] left;
@@ -28,7 +27,7 @@ module i2s_microphone (
   assign left = 32'h8765431;
   assign right = 32'hfedcba9;
   assign data = s_ws == 1'b0 ? left : right;
-  assign i2s_sd_o = enable_i ? sd : 1'bz;
+  assign i2s_sd_o = sd;
 
   always_ff @(posedge i2s_sck_i or negedge rst_ni) begin
     if (~rst_ni) begin

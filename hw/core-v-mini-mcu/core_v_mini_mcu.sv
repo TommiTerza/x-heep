@@ -174,8 +174,6 @@ module core_v_mini_mcu #(
     output logic gpio_21_o,
     output logic gpio_21_oe_o,
     input  logic i2s_sd_i,
-    output logic i2s_sd_o,
-    output logic i2s_sd_oe_o,
     input  logic gpio_22_i,
     output logic gpio_22_o,
     output logic gpio_22_oe_o,
@@ -233,6 +231,7 @@ module core_v_mini_mcu #(
     input  logic gpio_30_i,
     output logic gpio_30_o,
     output logic gpio_30_oe_o,
+    output logic i2s_sd_tx_o,
 
     // IDs
     input logic [31:0] hart_id_i,
@@ -734,8 +733,7 @@ module core_v_mini_mcu #(
       .i2s_ws_o(i2s_ws_o),
       .i2s_ws_oe_o(i2s_ws_oe_o),
       .i2s_ws_i(i2s_ws_i),
-      .i2s_sd_o(i2s_sd_o),
-      .i2s_sd_oe_o(i2s_sd_oe_o),
+      .i2s_sd_tx_o(i2s_sd_tx_o),
       .i2s_sd_i(i2s_sd_i),
       .i2s_rx_valid_o(i2s_rx_valid),
       .ddr_rcv_clk_i,

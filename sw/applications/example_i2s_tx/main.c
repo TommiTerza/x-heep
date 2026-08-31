@@ -21,10 +21,7 @@
 #define I2S_TX_SINK_START_ADDRESS (EXT_PERIPHERAL_START_ADDRESS + 0x6000)
 #endif
 
-#define I2S_TX_SINK_CONTROL_MIC_EN_BIT 0
-#define I2S_TX_SINK_CONTROL_SINK_EN_BIT 1
-
-#define I2S_TX_SINK_MIC_EN (1u << I2S_TX_SINK_CONTROL_MIC_EN_BIT)
+#define I2S_TX_SINK_CONTROL_SINK_EN_BIT 0
 #define I2S_TX_SINK_SINK_EN (1u << I2S_TX_SINK_CONTROL_SINK_EN_BIT)
 
 #define I2S_TX_CLK_DIV 32
@@ -79,7 +76,7 @@ int main(void)
     mmio_region_t sink =
         mmio_region_from_addr((uintptr_t)I2S_TX_SINK_START_ADDRESS);
 
-    // Disable the RX dummy microphone and keep the TX sink off while I2S is idle.
+    // Keep the TX sink off while I2S is idle.
     sink_write32(sink, I2S_TX_SINK_CONTROL_REG_OFFSET, 0);
 
     for (uint32_t i = 0; i < SAMPLE_COUNT; ++i) {
@@ -123,7 +120,7 @@ int main(void)
 
     i2s_tx_stop();
     i2s_terminate();
-    sink_write32(sink, I2S_TX_SINK_CONTROL_REG_OFFSET, I2S_TX_SINK_MIC_EN);
+    sink_write32(sink, I2S_TX_SINK_CONTROL_REG_OFFSET, 0);
 
     return success ? EXIT_SUCCESS : EXIT_FAILURE;
 #else

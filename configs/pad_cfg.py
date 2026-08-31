@@ -62,7 +62,8 @@ def config(xheep: XHeep) -> PadRing:
         # I2S
         Inout("i2s_sck"),
         Inout("i2s_ws"),
-        Inout("i2s_sd"),
+        Input("i2s_sd"),
+        Output("i2s_sd_tx"),
         # SPI2
         Inout("spi2_cs_0"),
         Inout("spi2_cs_1"),
@@ -163,6 +164,7 @@ def config(xheep: XHeep) -> PadRing:
             ["spi2_sd_3", "gpio_29"],
             ["i2c_scl", "gpio_31"],
             ["i2c_sda", "gpio_30"],
+            ["i2s_sd_tx"],
         ],
     }
 

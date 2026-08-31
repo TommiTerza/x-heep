@@ -13,10 +13,9 @@ module i2s_tx_sink #(
     input  reg_req_t reg_req_i,
     output reg_rsp_t reg_rsp_o,
 
-    input  logic i2s_sck_i,
-    input  logic i2s_ws_i,
-    input  logic i2s_sd_i,
-    output logic i2s_mic_enable_o
+    input logic i2s_sck_i,
+    input logic i2s_ws_i,
+    input logic i2s_sd_i
 );
 
   import i2s_tx_sink_reg_pkg::*;
@@ -33,7 +32,6 @@ module i2s_tx_sink #(
   logic rx_valid;
   logic [WordWidth-1:0] rx_data;
 
-  assign i2s_mic_enable_o = reg2hw.control.q[0];
   assign hw2reg.rxdata.d = rx_data;
   assign hw2reg.status.empty.de = 1'b1;
   assign hw2reg.status.empty.d = ~rx_valid;
@@ -61,7 +59,7 @@ module i2s_tx_sink #(
   ) sink_en_sync_i (
       .clk_i(i2s_sck_i),
       .rst_ni,
-      .serial_i(reg2hw.control.q[1]),
+      .serial_i(reg2hw.control.q[0]),
       .serial_o(sink_en_sck)
   );
 

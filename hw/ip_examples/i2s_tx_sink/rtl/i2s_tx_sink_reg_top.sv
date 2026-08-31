@@ -83,7 +83,7 @@ module i2s_tx_sink_reg_top #(
   prim_subreg #(
       .DW      (32),
       .SWACCESS("RW"),
-      .RESVAL  (32'h1)
+      .RESVAL  (32'h0)
   ) u_control (
       .clk_i (clk_i),
       .rst_ni(rst_ni),

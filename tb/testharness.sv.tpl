@@ -110,6 +110,7 @@ module testharness #(
   wire mux_jtag_tdo;
   wire mux_jtag_trstn;
   wire [31:0] gpio;
+  wire i2s_sd_tx;
 
   // SPI
   wire [3:0] spi_flash_sd_io;
@@ -122,7 +123,6 @@ module testharness #(
 
   logic iffifo_in_ready, iffifo_out_valid;
   logic iffifo_int_o;
-  logic i2s_mic_enable;
 
   // Im2col SPC interrupt signal
   logic im2col_spc_done_int_o;
@@ -334,6 +334,7 @@ module testharness #(
       .i2s_sck_io(gpio[20]),
       .i2s_ws_io(gpio[21]),
       .i2s_sd_io(gpio[22]),
+      .i2s_sd_tx_o(i2s_sd_tx),
       .spi2_cs_0_io(gpio[23]),
       .spi2_cs_1_io(gpio[24]),
       .spi2_sck_io(gpio[25]),
@@ -688,8 +689,7 @@ module testharness #(
           .reg_rsp_o(ext_periph_slv_rsp[testharness_pkg::I2S_TX_SINK_IDX]),
           .i2s_sck_i(gpio[20]),
           .i2s_ws_i(gpio[21]),
-          .i2s_sd_i(gpio[22]),
-          .i2s_mic_enable_o(i2s_mic_enable)
+          .i2s_sd_i(i2s_sd_tx)
       );
 
       addr_decode #(
@@ -741,7 +741,6 @@ module testharness #(
       // I2s "microphone"/rx example
       i2s_microphone i2s_microphone_i (
           .rst_ni(rst_ni),
-          .enable_i(i2s_mic_enable),
           .i2s_sck_i(gpio[20]),
           .i2s_ws_i(gpio[21]),
           .i2s_sd_o(gpio[22])

@@ -11,10 +11,10 @@
   registers: [
 
     { name:     "CONTROL"
-      desc:     "Sink control. Bit 0 enables the dummy microphone, bit 1 enables TX capture."
+      desc:     "Sink control. Bit 0 enables TX capture."
       swaccess: "rw"
       hwaccess: "hro"
-      resval:   1
+      resval:   0
       fields: [
         { bits: "31:0" }
       ]

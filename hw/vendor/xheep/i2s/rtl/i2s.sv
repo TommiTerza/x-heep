@@ -25,8 +25,7 @@ module i2s #(
     output logic i2s_ws_o,
     output logic i2s_ws_oe_o,
     input  logic i2s_ws_i,
-    output logic i2s_sd_o,
-    output logic i2s_sd_oe_o,
+    output logic i2s_sd_tx_o,
     input  logic i2s_sd_i,
 
     // Interrupt
@@ -77,7 +76,6 @@ module i2s #(
   assign hw2reg.status.tx_overflow.d = data_tx_overflow;
 
   // IO
-  assign i2s_sd_oe_o = reg2hw.control.en_io.q & reg2hw.control.en_tx.q;
   assign i2s_sck_oe_o = reg2hw.control.en_io.q;
   assign i2s_ws_oe_o = reg2hw.control.en_io.q;
   unread _sck_i (i2s_sck_i);
@@ -134,11 +132,11 @@ module i2s #(
       .en_ws_i(reg2hw.control.en_ws.q),
       .en_rx_left_i(reg2hw.control.en_rx.q[0]),
       .en_rx_right_i(reg2hw.control.en_rx.q[1]),
-      .en_tx_i(reg2hw.control.en_tx.q),
+      .en_tx_i(reg2hw.control.en_tx.q & reg2hw.control.en_io.q),
 
       .sck_o(i2s_sck_o),
       .ws_o (i2s_ws_o),
-      .sd_o (i2s_sd_o),
+      .sd_o (i2s_sd_tx_o),
       .sd_i (i2s_sd_i),
 
       .cfg_clock_div_i(reg2hw.clkdividx.q),

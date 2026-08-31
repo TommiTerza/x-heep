@@ -1,15 +1,15 @@
 ## Summary
 
-| Name                              | Offset   |   Length | Description                                                                 |
-|:----------------------------------|:---------|---------:|:----------------------------------------------------------------------------|
-| i2s_tx_sink.[`CONTROL`](#control) | 0x0      |        4 | Sink control. Bit 0 enables the dummy microphone, bit 1 enables TX capture. |
-| i2s_tx_sink.[`RXDATA`](#rxdata)   | 0x4      |        4 | Decoded I2S TX sample FIFO output                                           |
-| i2s_tx_sink.[`STATUS`](#status)   | 0x8      |        4 | I2S TX sink status                                                          |
+| Name                              | Offset   |   Length | Description                             |
+|:----------------------------------|:---------|---------:|:----------------------------------------|
+| i2s_tx_sink.[`CONTROL`](#control) | 0x0      |        4 | Sink control. Bit 0 enables TX capture. |
+| i2s_tx_sink.[`RXDATA`](#rxdata)   | 0x4      |        4 | Decoded I2S TX sample FIFO output       |
+| i2s_tx_sink.[`STATUS`](#status)   | 0x8      |        4 | I2S TX sink status                      |
 
 ## CONTROL
-Sink control. Bit 0 enables the dummy microphone, bit 1 enables TX capture.
+Sink control. Bit 0 enables TX capture.
 - Offset: `0x0`
-- Reset default: `0x1`
+- Reset default: `0x0`
 - Reset mask: `0xffffffff`
 
 ### Fields
@@ -20,7 +20,7 @@ Sink control. Bit 0 enables the dummy microphone, bit 1 enables TX capture.
 
 |  Bits  |  Type  |  Reset  | Name    | Description   |
 |:------:|:------:|:-------:|:--------|:--------------|
-|  31:0  |   rw   |   0x1   | CONTROL |               |
+|  31:0  |   rw   |   0x0   | CONTROL |               |
 
 ## RXDATA
 Decoded I2S TX sample FIFO output
