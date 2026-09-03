@@ -9,7 +9,8 @@
 
 module i2s #(
     parameter type reg_req_t = logic,
-    parameter type reg_rsp_t = logic
+    parameter type reg_rsp_t = logic,
+    parameter bit I2sDisableTx = 1'b1
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -25,14 +26,17 @@ module i2s #(
     output logic i2s_ws_o,
     output logic i2s_ws_oe_o,
     input  logic i2s_ws_i,
-    output logic i2s_sd_tx_o,
+
+    // Independent data lines for TX and RX to allow full duplex operation
+    output logic i2s_sd_o,
     input  logic i2s_sd_i,
 
     // Interrupt
     output logic intr_i2s_event_o,
 
     // DMA signal
-    output logic i2s_rx_valid_o
+    output logic i2s_rx_valid_o,
+    output logic i2s_tx_ready_o
 );
 
   import i2s_reg_pkg::*;
@@ -67,6 +71,7 @@ module i2s #(
 
   // DMA signal
   assign i2s_rx_valid_o = data_rx_valid;
+  assign i2s_tx_ready_o = data_tx_ready;
 
   // STATUS signal
   assign hw2reg.status.rx_data_ready.d = data_rx_valid;
@@ -104,7 +109,6 @@ module i2s #(
     end
   end
 
-
   // Register logic
   i2s_reg_top #(
       .reg_req_t(reg_req_t),
@@ -119,12 +123,11 @@ module i2s #(
       .devmode_i(1'b1)
   );
 
-
-
   // Core logic
   i2s_core #(
       .MaxWordWidth(MaxWordWidth),
-      .ClkDividerWidth(ClkDividerWidth)
+      .ClkDividerWidth(ClkDividerWidth),
+      .I2sDisableTx(I2sDisableTx)
   ) i2s_core_i (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
@@ -136,7 +139,7 @@ module i2s #(
 
       .sck_o(i2s_sck_o),
       .ws_o (i2s_ws_o),
-      .sd_o (i2s_sd_tx_o),
+      .sd_o (i2s_sd_o),
       .sd_i (i2s_sd_i),
 
       .cfg_clock_div_i(reg2hw.clkdividx.q),
@@ -151,14 +154,13 @@ module i2s #(
       .data_tx_valid_i(data_tx_valid),
       .data_tx_ready_o(data_tx_ready),
 
-      .clear_rx_overflow_i(reg2hw.control.reset_rx_overflow.q),
+      .clear_rx_overflow_i (reg2hw.control.reset_rx_overflow.q),
       .clear_tx_underflow_i(reg2hw.control.reset_tx_underflow.q),
 
       .running_o(hw2reg.status.running.d),
       .data_rx_overflow_o(data_rx_overflow),
       .data_tx_underflow_o(data_tx_underflow)
   );
-
 
   // watermark counter
   // count bus reads and trigger interrupt 

@@ -83,8 +83,9 @@ module peripheral_subsystem #(
     output logic i2s_ws_oe_o,
     input  logic i2s_ws_i,
     output logic i2s_sd_tx_o,
-    input  logic i2s_sd_i,
+    input  logic i2s_sd_rx_i,
     output logic i2s_rx_valid_o,
+    output logic i2s_tx_ready_o,
 
     //Serial Link
     input  logic [serial_link_single_channel_reg_pkg::NumChannels-1:0]    ddr_rcv_clk_i,  
@@ -565,7 +566,8 @@ module peripheral_subsystem #(
 % if user_peripheral_domain.contains_peripheral('i2s'):
   i2s #(
       .reg_req_t(reg_req_t),
-      .reg_rsp_t(reg_rsp_t)
+      .reg_rsp_t(reg_rsp_t),
+      .I2sDisableTx(1'b0)
   ) i2s_i (
       .clk_i(clk_cg),
       .rst_ni,
@@ -578,10 +580,11 @@ module peripheral_subsystem #(
       .i2s_ws_o(i2s_ws_o),
       .i2s_ws_oe_o(i2s_ws_oe_o),
       .i2s_ws_i(i2s_ws_i),
-      .i2s_sd_tx_o(i2s_sd_tx_o),
-      .i2s_sd_i(i2s_sd_i),
+      .i2s_sd_o(i2s_sd_tx_o),
+      .i2s_sd_i(i2s_sd_rx_i),
       .intr_i2s_event_o(i2s_intr_event),
-      .i2s_rx_valid_o(i2s_rx_valid_o)
+      .i2s_rx_valid_o(i2s_rx_valid_o),
+      .i2s_tx_ready_o(i2s_tx_ready_o)
   );
 % else:
 
@@ -592,6 +595,7 @@ module peripheral_subsystem #(
   assign i2s_sd_tx_o      = 1'b0;
   assign i2s_intr_event   = 1'b0;
   assign i2s_rx_valid_o   = 1'b0;
+  assign i2s_tx_ready_o   = 1'b0;
 % endif
 
   

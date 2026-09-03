@@ -62,7 +62,7 @@ def config(xheep: XHeep) -> PadRing:
         # I2S
         Inout("i2s_sck"),
         Inout("i2s_ws"),
-        Input("i2s_sd"),
+        Input("i2s_sd_rx"),
         Output("i2s_sd_tx"),
         # SPI2
         Inout("spi2_cs_0"),
@@ -131,7 +131,7 @@ def config(xheep: XHeep) -> PadRing:
             ["gpio_10", "ddr_snd_3"],
             ["gpio_11"],
             ["gpio_12"],
-            ["gpio_13"],
+            ["gpio_13", "i2s_sd_tx"],
             ["spi_flash_sck"],
             ["spi_flash_cs_0"],
             ["spi_flash_cs_1"],
@@ -154,7 +154,7 @@ def config(xheep: XHeep) -> PadRing:
             ["pdm2pcm_clk", "gpio_19"],
             ["i2s_sck", "gpio_20"],
             ["i2s_ws", "gpio_21"],
-            ["i2s_sd", "gpio_22"],
+            ["i2s_sd_rx", "gpio_22"],
             ["spi2_cs_0", "gpio_23"],
             ["spi2_cs_1", "gpio_24"],
             ["spi2_sck", "gpio_25"],
@@ -164,7 +164,6 @@ def config(xheep: XHeep) -> PadRing:
             ["spi2_sd_3", "gpio_29"],
             ["i2c_scl", "gpio_31"],
             ["i2c_sda", "gpio_30"],
-            ["i2s_sd_tx"],
         ],
     }
 
