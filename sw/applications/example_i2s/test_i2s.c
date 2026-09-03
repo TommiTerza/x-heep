@@ -80,20 +80,8 @@ bool launch_dma_transaction(dma_trans_t *trans, const char *name)
     return true;
 }
 
-bool wait_dma_ready(uint8_t channel, const char *name)
-{
-    for (uint32_t timeout = I2S_POLL_TIMEOUT; timeout; --timeout) {
-        if (dma_is_ready(channel) != 0) {
-            return true;
-        }
-    }
-
-    printf("%s DMA timed out\n", name);
-    return false;
-}
-
 bool configure_rx_dma(uint32_t *dst, uint32_t sample_count, uint8_t channel,
-                      const char *name)
+                      const char *name, dma_trans_end_evt_t end)
 {
     rx_src = (dma_target_t){
         .ptr = (uint8_t *)I2S_RX_DATA_ADDRESS,
@@ -119,7 +107,7 @@ bool configure_rx_dma(uint32_t *dst, uint32_t sample_count, uint8_t channel,
         .dim = DMA_DIM_CONF_1D,
         .sign_ext = 0,
         .win_du = 0,
-        .end = DMA_TRANS_END_POLLING,
+        .end = end,
         .channel = channel,
     };
 
@@ -152,7 +140,7 @@ bool configure_tx_dma(uint8_t channel)
         .dim = DMA_DIM_CONF_1D,
         .sign_ext = 0,
         .win_du = 0,
-        .end = DMA_TRANS_END_POLLING,
+        .end = DMA_TRANS_END_INTR_WAIT,
         .channel = channel,
     };
 
@@ -212,91 +200,23 @@ bool sink_sample_matches(uint32_t sample, uint32_t sample_idx)
     return true;
 }
 
-bool stop_rx(bool *rx_stopped)
+void disable_i2s_rx(void)
 {
-    if (*rx_stopped) {
-        return true;
-    }
+    i2s_peri->CONTROL &=
+        ~(I2S_CONTROL_EN_RX_MASK << I2S_CONTROL_EN_RX_OFFSET);
+}
 
-    i2s_result_t rx_stop_res = i2s_rx_stop();
-    *rx_stopped = true;
-
-    if (rx_stop_res != kI2sOk) {
-        printf("I2S RX stop failed with %d\n", rx_stop_res);
-        return false;
+bool check_tx_sink_samples(mmio_region_t sink)
+{
+    for (uint32_t i = 0; i < I2S_TX_SAMPLES; ++i) {
+        uint32_t sample =
+            mmio_region_read32(sink, I2S_TX_SINK_RXDATA_REG_OFFSET);
+        if (!sink_sample_matches(sample, i)) {
+            return false;
+        }
     }
 
     return true;
-}
-
-bool stop_tx(bool tx_enabled, bool tx_completed)
-{
-    if (!tx_enabled && !(i2s_peri->CONTROL & (1u << I2S_CONTROL_EN_TX_BIT))) {
-        return true;
-    }
-
-    i2s_result_t tx_stop_res = i2s_tx_stop();
-    if (tx_stop_res == kI2sOk) {
-        return true;
-    }
-
-    if ((tx_stop_res == kI2sUnderflow) && tx_completed) {
-        return true;
-    }
-
-    printf("I2S TX stop failed with %d\n", tx_stop_res);
-    return false;
-}
-
-bool wait_tx_dma_and_sink(mmio_region_t sink, uint8_t tx_dma_channel)
-{
-    uint32_t sink_read = 0;
-
-    for (uint32_t timeout = I2S_POLL_TIMEOUT; timeout; --timeout) {
-        if ((sink_read >= I2S_TX_SAMPLES) &&
-            (dma_is_ready(tx_dma_channel) != 0)) {
-            return true;
-        }
-
-        uint32_t status =
-            mmio_region_read32(sink, I2S_TX_SINK_STATUS_REG_OFFSET);
-        if (status & (1u << I2S_TX_SINK_STATUS_OVERFLOW_BIT)) {
-            printf("I2S TX sink overflowed\n");
-            return false;
-        }
-
-        if (status & (1u << I2S_TX_SINK_STATUS_AVAILABLE_BIT)) {
-            uint32_t sample =
-                mmio_region_read32(sink, I2S_TX_SINK_RXDATA_REG_OFFSET);
-            if (sink_read >= I2S_TX_SAMPLES) {
-                printf("I2S TX sink received more samples than expected\n");
-                return false;
-            }
-            if (!sink_sample_matches(sample, sink_read)) {
-                return false;
-            }
-            ++sink_read;
-        }
-
-        if (i2s_tx_overflow()) {
-            printf("I2S TX FIFO overflowed\n");
-            return false;
-        }
-
-        if (i2s_tx_underflow() && (sink_read < I2S_TX_SAMPLES)) {
-            printf("I2S TX underflowed before all samples were sent\n");
-            return false;
-        }
-    }
-
-    if (dma_is_ready(tx_dma_channel) == 0) {
-        printf("I2S TX DMA timed out\n");
-    }
-    if (sink_read < I2S_TX_SAMPLES) {
-        printf("I2S TX sink timed out after %u samples\n", sink_read);
-    }
-
-    return false;
 }
 
 bool arm_i2s_rx_tx(void)

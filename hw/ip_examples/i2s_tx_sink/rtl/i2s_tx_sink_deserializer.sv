@@ -18,6 +18,7 @@ module i2s_tx_sink_deserializer #(
 );
 
   logic                    r_ws_old;
+  logic                    r_en;
   logic                    s_ws_edge;
   logic                    r_started;
   logic [CounterWidth-1:0] r_count_bit;
@@ -36,6 +37,7 @@ module i2s_tx_sink_deserializer #(
   always_ff @(posedge sck_i or negedge rst_ni) begin
     if (~rst_ni) begin
       r_ws_old     <= 1'b0;
+      r_en         <= 1'b0;
       r_started    <= 1'b0;
       r_count_bit  <= '0;
       r_shiftreg   <= '0;
@@ -45,10 +47,15 @@ module i2s_tx_sink_deserializer #(
       data_valid_o <= 1'b0;
 
       if (en_i) begin
+        r_en     <= 1'b1;
         r_ws_old <= ws_i;
 
-        if (s_ws_edge) begin
-          if (r_started) begin
+        if (!r_en) begin
+          r_started   <= 1'b0;
+          r_count_bit <= '0;
+          r_shiftreg  <= '0;
+        end else if (s_ws_edge) begin
+          if (r_started && (r_count_bit == WordLastBit)) begin
             data_o       <= s_shiftreg;
             data_valid_o <= 1'b1;
           end
@@ -63,6 +70,7 @@ module i2s_tx_sink_deserializer #(
         end
       end else begin
         r_ws_old     <= ws_i;
+        r_en         <= 1'b0;
         r_started    <= 1'b0;
         r_count_bit  <= '0;
         r_shiftreg   <= '0;

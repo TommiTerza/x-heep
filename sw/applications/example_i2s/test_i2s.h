@@ -28,18 +28,6 @@
 #define TEST_ID_1
 #define TEST_ID_2
 
-/* By default, printfs are activated for FPGA and disabled for simulation. */
-#define PRINTF_IN_FPGA 1
-#define PRINTF_IN_SIM  0
-
-#if TARGET_SIM && PRINTF_IN_SIM
-#define PRINTF(fmt, ...) printf(fmt, ##__VA_ARGS__)
-#elif PRINTF_IN_FPGA && !TARGET_SIM
-#define PRINTF(fmt, ...) printf(fmt, ##__VA_ARGS__)
-#else
-#define PRINTF(...)
-#endif
-
 #if !defined(TEST_ID_0) && !defined(TEST_ID_1) && !defined(TEST_ID_2)
 #error "example_i2s requires at least one TEST_ID_* macro"
 #endif
@@ -69,7 +57,6 @@
 #define I2S_RX_FPGA_BATCHES  16
 #define I2S_RX_TX_SAMPLES    I2S_RX_SIM_SAMPLES
 #define I2S_TX_SAMPLES       12
-#define I2S_POLL_TIMEOUT     2000000
 #define I2S_FPGA_WAIT_CYCLES ((3 * REFERENCE_CLOCK_Hz) / 8)
 
 #ifdef TARGET_IS_FPGA
@@ -91,15 +78,13 @@ extern dma_trans_t tx_trans;
 void select_gpio_13_pad(uint8_t mux);
 void clear_samples(uint32_t *samples, uint32_t sample_count);
 bool launch_dma_transaction(dma_trans_t *trans, const char *name);
-bool wait_dma_ready(uint8_t channel, const char *name);
 bool configure_rx_dma(uint32_t *dst, uint32_t sample_count, uint8_t channel,
-                      const char *name);
+                      const char *name, dma_trans_end_evt_t end);
 bool configure_tx_dma(uint8_t channel);
 bool check_rx_samples(uint32_t *samples, uint32_t sample_count);
 bool sink_sample_matches(uint32_t sample, uint32_t sample_idx);
-bool stop_rx(bool *rx_stopped);
-bool stop_tx(bool tx_enabled, bool tx_completed);
-bool wait_tx_dma_and_sink(mmio_region_t sink, uint8_t tx_dma_channel);
+void disable_i2s_rx(void);
+bool check_tx_sink_samples(mmio_region_t sink);
 bool arm_i2s_rx_tx(void);
 
 #endif /* TEST_I2S_H_ */
