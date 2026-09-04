@@ -21,21 +21,20 @@ module i2s_tx_sink #(
 
   import i2s_tx_sink_reg_pkg::*;
 
-  i2s_tx_sink_reg2hw_t reg2hw;
-  i2s_tx_sink_hw2reg_t hw2reg;
-  reg_req_t             reg_req;
-  reg_rsp_t             reg_rsp;
+  i2s_tx_sink_reg2hw_t                 reg2hw;
+  i2s_tx_sink_hw2reg_t                 hw2reg;
+  reg_req_t                            reg_req;
+  reg_rsp_t                            reg_rsp;
 
-  logic sink_rst_ni;
-  logic sink_en_sck;
-  logic sample_valid_sck;
-  logic sample_ready_sck;
-  logic [WordWidth-1:0] sample_sck;
-  logic overflow_sck;
-  logic overflow;
-  logic rx_valid;
-  logic [WordWidth-1:0] rx_data;
-  logic rxdata_read_wait;
+  logic                                sink_en_sck;
+  logic                                sample_valid_sck;
+  logic                                sample_ready_sck;
+  logic                [WordWidth-1:0] sample_sck;
+  logic                                overflow_sck;
+  logic                                overflow;
+  logic                                rx_valid;
+  logic                [WordWidth-1:0] rx_data;
+  logic                                rxdata_read_wait;
 
   assign hw2reg.rxdata.d = rx_data;
   assign hw2reg.status.empty.de = 1'b1;
@@ -44,8 +43,6 @@ module i2s_tx_sink #(
   assign hw2reg.status.available.d = rx_valid;
   assign hw2reg.status.overflow.de = 1'b1;
   assign hw2reg.status.overflow.d = overflow;
-
-  assign sink_rst_ni = rst_ni && reg2hw.control.q[0];
 
   assign rxdata_read_wait =
       reg_req_i.valid && !reg_req_i.write &&
@@ -81,7 +78,7 @@ module i2s_tx_sink #(
       .ResetValue(1'b0)
   ) sink_en_sync_i (
       .clk_i(i2s_sck_i),
-      .rst_ni(sink_rst_ni),
+      .rst_ni,
       .serial_i(reg2hw.control.q[0]),
       .serial_o(sink_en_sck)
   );
@@ -90,7 +87,7 @@ module i2s_tx_sink #(
       .WordWidth(WordWidth)
   ) deserializer_i (
       .sck_i(i2s_sck_i),
-      .rst_ni(sink_rst_ni),
+      .rst_ni(rst_ni),
       .en_i(sink_en_sck),
       .ws_i(i2s_ws_i),
       .sd_i(i2s_sd_i),
@@ -104,20 +101,20 @@ module i2s_tx_sink #(
       .LOG_DEPTH(FifoLogDepth)
   ) sample_cdc_i (
       .src_clk_i  (i2s_sck_i),
-      .src_rst_ni (sink_rst_ni),
+      .src_rst_ni (rst_ni),
       .src_ready_o(sample_ready_sck),
       .src_data_i (sample_sck),
       .src_valid_i(sample_valid_sck),
 
-      .dst_rst_ni (sink_rst_ni),
+      .dst_rst_ni (rst_ni),
       .dst_clk_i  (clk_i),
       .dst_data_o (rx_data),
       .dst_valid_o(rx_valid),
       .dst_ready_i(reg2hw.rxdata.re)
   );
 
-  always_ff @(posedge i2s_sck_i or negedge sink_rst_ni) begin
-    if (~sink_rst_ni) begin
+  always_ff @(posedge i2s_sck_i or negedge rst_ni) begin
+    if (~rst_ni) begin
       overflow_sck <= 1'b0;
     end else if (sample_valid_sck && !sample_ready_sck) begin
       overflow_sck <= 1'b1;
@@ -129,7 +126,7 @@ module i2s_tx_sink #(
       .ResetValue(1'b0)
   ) overflow_sync_i (
       .clk_i,
-      .rst_ni(sink_rst_ni),
+      .rst_ni,
       .serial_i(overflow_sck),
       .serial_o(overflow)
   );

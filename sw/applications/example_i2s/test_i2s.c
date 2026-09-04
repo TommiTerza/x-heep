@@ -208,12 +208,38 @@ void disable_i2s_rx(void)
 
 bool check_tx_sink_samples(mmio_region_t sink)
 {
-    for (uint32_t i = 0; i < I2S_TX_SAMPLES; ++i) {
+    uint32_t sample_idx = 0;
+    uint32_t leading_zeros = 0;
+    bool payload_started = false;
+
+    for (uint32_t i = 0; i < I2S_TX_SAMPLES + I2S_TX_SINK_EXTRA_READS; ++i) {
         uint32_t sample =
             mmio_region_read32(sink, I2S_TX_SINK_RXDATA_REG_OFFSET);
-        if (!sink_sample_matches(sample, i)) {
+
+        if (!payload_started) {
+            if (sample == 0) {
+                ++leading_zeros;
+                continue;
+            }
+
+            payload_started = true;
+        }
+
+        if (sample_idx >= I2S_TX_SAMPLES) {
+            continue;
+        }
+
+        if (!sink_sample_matches(sample, sample_idx)) {
             return false;
         }
+
+        ++sample_idx;
+    }
+
+    if (sample_idx != I2S_TX_SAMPLES) {
+        printf("TX sink returned only %u/%u expected samples after %u leading zero samples\n",
+               sample_idx, I2S_TX_SAMPLES, leading_zeros);
+        return false;
     }
 
     return true;
