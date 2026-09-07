@@ -31,7 +31,7 @@ class XHeep:
     :raise TypeError: when parameters are of incorrect type.
     """
 
-    IL_COMPATIBLE_BUS_TYPES = [BusType.NtoM]
+    IL_COMPATIBLE_BUS_TYPES = [BusType.NtoM, BusType.outstanding]
     """Constant set of bus types that support interleaved memory banks"""
 
     def __init__(

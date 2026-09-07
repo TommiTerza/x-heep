@@ -11,6 +11,7 @@ filesets:
   files_rtl:
     depend:
     - x-heep:rtl:structs
+    - pulp-platform.org::common_cells
     files:
     - xheep_obi_fifo.sv
     file_type: systemVerilogSource

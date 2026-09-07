@@ -380,7 +380,7 @@ def load_cfg_hjson(src: str) -> XHeep:
     if cpu_type_config is None:
         raise RuntimeError("No CPU type configuration found")
 
-    system = XHeep(BusType(bus_config))
+    system = XHeep(BusType.parse(bus_config))
     memory_ss = MemorySS()
 
     load_ram_config(memory_ss, mem_config)

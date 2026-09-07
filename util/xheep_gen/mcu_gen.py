@@ -71,7 +71,7 @@ def generate_xheep(args):
     xheep.set_padring(pad_ring)
 
     if args.bus != None and args.bus != "":
-        xheep.set_bus_type(BusType(args.bus))
+        xheep.set_bus_type(BusType.parse(args.bus))
 
     if args.memorybanks != None and args.memorybanks != "":
         xheep.memory_ss().override_ram_banks(int(args.memorybanks))
@@ -127,10 +127,10 @@ def main():
 
     parser.add_argument(
         "--bus",
-        metavar="onetoM,NtoM",
+        metavar="1toN,NtoM,outstanding",
         nargs="?",
         default="",
-        help="Bus type (default value from cfg file)",
+        help="Bus type (default value from cfg file). Legacy onetoM is also accepted.",
     )
 
     parser.add_argument(

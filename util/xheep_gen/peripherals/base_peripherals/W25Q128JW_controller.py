@@ -30,11 +30,11 @@ class W25Q128JW_Controller(BasePeripheral):
 
     def validate(self, bus_type: BusType = None):
         """
-        Validate the W25Q128JW controller peripheral. Cache needs NtoM bus type to be enabled.
+        Validate the W25Q128JW controller peripheral. Cache needs an N-to-M bus type to be enabled.
 
         :param BusType bus_type: The bus type of the peripheral domain.
         """
-        if self._cache and bus_type != BusType.NtoM:
+        if self._cache and bus_type not in [BusType.NtoM, BusType.outstanding]:
             raise ValueError(
-                "[MCU-GEN - W25Q128JW_Controller] ERROR: Cache parameter can only be enabled for NtoM bus type"
+                "[MCU-GEN - W25Q128JW_Controller] ERROR: Cache parameter can only be enabled for NtoM or outstanding bus type"
             )

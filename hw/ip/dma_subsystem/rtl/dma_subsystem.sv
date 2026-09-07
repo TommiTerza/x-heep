@@ -144,7 +144,9 @@ module dma_subsystem
         /* Read, write & address mode operations xbar*/
         dma_NtoM_xbar #(
             .XBAR_NMASTER(core_v_mini_mcu_pkg::DMA_CH_NUM),
-            .XBAR_MSLAVE (core_v_mini_mcu_pkg::DMA_NUM_MASTER_PORTS)
+            .XBAR_MSLAVE(core_v_mini_mcu_pkg::DMA_NUM_MASTER_PORTS),
+            .USE_OUTSTANDING(core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding),
+            .MAX_OUTSTANDING(core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING)
         ) xbar_read_i (
             .clk_i(clk_i),
             .rst_ni(rst_ni),
@@ -156,7 +158,9 @@ module dma_subsystem
 
         dma_NtoM_xbar #(
             .XBAR_NMASTER(core_v_mini_mcu_pkg::DMA_CH_NUM),
-            .XBAR_MSLAVE (core_v_mini_mcu_pkg::DMA_NUM_MASTER_PORTS)
+            .XBAR_MSLAVE(core_v_mini_mcu_pkg::DMA_NUM_MASTER_PORTS),
+            .USE_OUTSTANDING(core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding),
+            .MAX_OUTSTANDING(core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING)
         ) xbar_write_i (
             .clk_i(clk_i),
             .rst_ni(rst_ni),
@@ -168,7 +172,9 @@ module dma_subsystem
 
         dma_NtoM_xbar #(
             .XBAR_NMASTER(core_v_mini_mcu_pkg::DMA_CH_NUM),
-            .XBAR_MSLAVE (core_v_mini_mcu_pkg::DMA_NUM_MASTER_PORTS)
+            .XBAR_MSLAVE(core_v_mini_mcu_pkg::DMA_NUM_MASTER_PORTS),
+            .USE_OUTSTANDING(core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding),
+            .MAX_OUTSTANDING(core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING)
         ) xbar_address_i (
             .clk_i(clk_i),
             .rst_ni(rst_ni),
@@ -193,6 +199,8 @@ module dma_subsystem
         /* Read, write & address mode operations xbar*/
         xbar_varlat_n_to_one #(
             .XBAR_NMASTER(core_v_mini_mcu_pkg::DMA_CH_NUM),
+            .USE_OUTSTANDING(core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding),
+            .MAX_OUTSTANDING(core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING),
             .obi_req_t(obi_req_t),
             .obi_rsp_t(obi_rsp_t)
         ) xbar_read_i (
@@ -206,6 +214,8 @@ module dma_subsystem
 
         xbar_varlat_n_to_one #(
             .XBAR_NMASTER(core_v_mini_mcu_pkg::DMA_CH_NUM),
+            .USE_OUTSTANDING(core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding),
+            .MAX_OUTSTANDING(core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING),
             .obi_req_t(obi_req_t),
             .obi_rsp_t(obi_rsp_t)
         ) xbar_write_i (
@@ -219,6 +229,8 @@ module dma_subsystem
 
         xbar_varlat_n_to_one #(
             .XBAR_NMASTER(core_v_mini_mcu_pkg::DMA_CH_NUM),
+            .USE_OUTSTANDING(core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding),
+            .MAX_OUTSTANDING(core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING),
             .obi_req_t(obi_req_t),
             .obi_rsp_t(obi_rsp_t)
         ) xbar_address_i (

@@ -163,6 +163,8 @@ module ext_bus #(
       xbar_varlat_one_to_n #(
           .XBAR_NSLAVE(32'd2),  // internal crossbar + external crossbar
           .NUM_RULES(32'd1),  // only the external address space is defined
+          .USE_OUTSTANDING(core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding),
+          .MAX_OUTSTANDING(core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING),
           .obi_req_t(obi_req_t),
           .obi_rsp_t(obi_rsp_t)
       ) demux_xbar_i (
@@ -183,6 +185,7 @@ module ext_bus #(
   ext_xbar #(
       .XBAR_NMASTER(SYSTEM_XBAR_NMASTER + EXT_XBAR_NMASTER),
       .XBAR_NSLAVE(EXT_XBAR_NSLAVE),
+      .MAX_OUTSTANDING(core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING),
       .obi_req_t(obi_req_t),
       .obi_rsp_t(obi_rsp_t)
   ) ext_xbar_i (

@@ -13,6 +13,7 @@ module system_xbar
     parameter core_v_mini_mcu_pkg::bus_type_e BUS_TYPE = core_v_mini_mcu_pkg::BusType,
     parameter XBAR_NMASTER = 3,
     parameter XBAR_NSLAVE = 6,
+    parameter int unsigned MAX_OUTSTANDING = core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING,
     localparam int unsigned IdxWidth = cf_math_pkg::idx_width(XBAR_NSLAVE),
     // OBI data types
     parameter type obi_req_t = xheep_obi_pkg::xheep_obi_req_t,
@@ -43,6 +44,14 @@ module system_xbar
   localparam int unsigned REQ_AGG_DATA_WIDTH = 1 + 4 + 32 + 32;
   localparam int unsigned RESP_AGG_DATA_WIDTH = 32;
 
+`ifndef SYNTHESIS
+  // pragma translate_off
+  initial begin
+    assert(MAX_OUTSTANDING > 0) else $fatal(1, "MAX_OUTSTANDING must be greater than 0.");
+  end
+  // pragma translate_on
+`endif
+
   //Address Decoder
 % if not memory_ss.has_il_ram():
   logic [XBAR_NMASTER-1:0][LOG_XBAR_NSLAVE-1:0] port_sel;
@@ -70,7 +79,7 @@ module system_xbar
   logic [XBAR_NSLAVE-1:0][REQ_AGG_DATA_WIDTH-1:0] slave_req_out_data;
   obi_req_t [XBAR_NMASTER-1:0] master_req;
 
-  if (BUS_TYPE == NtoM) begin : gen_addr_decoders_NtoM
+  if (BUS_TYPE == NtoM || BUS_TYPE == outstanding) begin : gen_addr_decoders_NtoM
     for (genvar i = 0; i < XBAR_NMASTER; i++) begin : gen_addr_decoders
       addr_decode #(
           /// Highest index which can happen in a rule.
@@ -125,7 +134,7 @@ module system_xbar
     end
   endgenerate
 
-  if (BUS_TYPE == NtoM) begin : gen_xbar_NtoM
+  if (BUS_TYPE == NtoM || BUS_TYPE == outstanding) begin : gen_xbar_NtoM
 
 
     // Unroll OBI structs
@@ -150,29 +159,54 @@ module system_xbar
       assign slave_resp_rvalid[i] = slave_resp_i[i].rvalid;
     end
 
-    //Crossbar instantiation
-    xbar_varlat #(
-        .AggregateGnt(0),
-        .NumIn(XBAR_NMASTER),
-        .NumOut(XBAR_NSLAVE),
-        .ReqDataWidth(REQ_AGG_DATA_WIDTH),
-        .RespDataWidth(RESP_AGG_DATA_WIDTH)
-    ) i_xbar (
-        .clk_i,
-        .rst_ni,
-        .req_i  (master_req_req),
-        .add_i  (port_sel),
-        .wdata_i(master_req_data),
-        .gnt_o  (master_resp_gnt),
-        .rdata_o(master_resp_rdata),
-        .rr_i   ('0),
-        .vld_o  (master_resp_rvalid),
-        .gnt_i  (slave_resp_gnt),
-        .req_o  (slave_req_req),
-        .vld_i  (slave_resp_rvalid),
-        .wdata_o(slave_req_out_data),
-        .rdata_i(slave_resp_rdata)
-    );
+    if (BUS_TYPE == outstanding) begin : gen_outstanding_xbar
+      xbar_varlat_outstanding #(
+          .AggregateGnt(0),
+          .NumIn(XBAR_NMASTER),
+          .NumOut(XBAR_NSLAVE),
+          .ReqDataWidth(REQ_AGG_DATA_WIDTH),
+          .RespDataWidth(RESP_AGG_DATA_WIDTH),
+          .MaxOutstanding(MAX_OUTSTANDING)
+      ) i_xbar (
+          .clk_i,
+          .rst_ni,
+          .req_i  (master_req_req),
+          .add_i  (port_sel),
+          .wdata_i(master_req_data),
+          .gnt_o  (master_resp_gnt),
+          .rdata_o(master_resp_rdata),
+          .rr_i   ('0),
+          .vld_o  (master_resp_rvalid),
+          .gnt_i  (slave_resp_gnt),
+          .req_o  (slave_req_req),
+          .vld_i  (slave_resp_rvalid),
+          .wdata_o(slave_req_out_data),
+          .rdata_i(slave_resp_rdata)
+      );
+    end else begin : gen_legacy_xbar
+      xbar_varlat #(
+          .AggregateGnt(0),
+          .NumIn(XBAR_NMASTER),
+          .NumOut(XBAR_NSLAVE),
+          .ReqDataWidth(REQ_AGG_DATA_WIDTH),
+          .RespDataWidth(RESP_AGG_DATA_WIDTH)
+      ) i_xbar (
+          .clk_i,
+          .rst_ni,
+          .req_i  (master_req_req),
+          .add_i  (port_sel),
+          .wdata_i(master_req_data),
+          .gnt_o  (master_resp_gnt),
+          .rdata_o(master_resp_rdata),
+          .rr_i   ('0),
+          .vld_o  (master_resp_rvalid),
+          .gnt_i  (slave_resp_gnt),
+          .req_o  (slave_req_req),
+          .vld_i  (slave_resp_rvalid),
+          .wdata_o(slave_req_out_data),
+          .rdata_i(slave_resp_rdata)
+      );
+    end
 
   end else begin : gen_xbar_1toM
 

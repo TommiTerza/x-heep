@@ -155,7 +155,7 @@ conda: util/conda_environment.yml
 
 ## Generates mcu files core-v-mini-mcu files and build the design with fusesoc
 ## @param CPU=[cv32e20(default),cv32e40p,cv32e40x,cv32e40px]
-## @param BUS=[onetoM(default),NtoM]
+## @param BUS=[1toN,NtoM,outstanding]
 ## @param MEMORY_BANKS=[2(default)to(16-MEMORY_BANKS_IL)]
 ## @param MEMORY_BANKS_IL=[0(default),2,4,8]
 ## @param X_HEEP_CFG=[configs/general.hjson(default),<path-to-config-file>]
@@ -241,7 +241,7 @@ questasim-build-opt-upf: questasim-build
 
 ## VCS simulation
 ## @param CPU=cv32e20(default),cv32e40p,cv32e40x,cv32e40px
-## @param BUS=onetoM(default),NtoM
+## @param BUS=1toN,NtoM,outstanding
 vcs-build:
 	$(FUSESOC) --cores-root $(FUSESOC_CORES_ROOT) run --no-export --target=sim --tool=vcs $(FUSESOC_FLAGS) --build openhwgroup.org:systems:core-v-mini-mcu $(FUSESOC_PARAM) 2>&1 | tee buildsim.log
 

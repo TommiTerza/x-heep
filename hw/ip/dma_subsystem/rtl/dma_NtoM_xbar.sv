@@ -21,6 +21,9 @@
 module dma_NtoM_xbar #(
     parameter int unsigned XBAR_NMASTER = 4,
     parameter int unsigned XBAR_MSLAVE = 2,
+    parameter bit          USE_OUTSTANDING = core_v_mini_mcu_pkg::BusType ==
+                                             core_v_mini_mcu_pkg::outstanding,
+    parameter int unsigned MAX_OUTSTANDING = core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING,
     // OBI data types
     parameter type obi_req_t = xheep_obi_pkg::xheep_obi_req_t,
     parameter type obi_rsp_t = xheep_obi_pkg::xheep_obi_rsp_t
@@ -42,6 +45,8 @@ module dma_NtoM_xbar #(
   generate
     xbar_varlat_n_to_one #(
         .XBAR_NMASTER(core_v_mini_mcu_pkg::DMA_XBAR_MASTERS[0]),
+        .USE_OUTSTANDING(USE_OUTSTANDING),
+        .MAX_OUTSTANDING(MAX_OUTSTANDING),
         .obi_req_t(obi_req_t),
         .obi_rsp_t(obi_rsp_t)
     ) xbar_i (
@@ -60,6 +65,8 @@ module dma_NtoM_xbar #(
       end else begin : gen_xbar_multi_channel
         xbar_varlat_n_to_one #(
             .XBAR_NMASTER(core_v_mini_mcu_pkg::DMA_XBAR_MASTERS[i]),
+            .USE_OUTSTANDING(USE_OUTSTANDING),
+            .MAX_OUTSTANDING(MAX_OUTSTANDING),
             .obi_req_t(obi_req_t),
             .obi_rsp_t(obi_rsp_t)
         ) xbar_i (

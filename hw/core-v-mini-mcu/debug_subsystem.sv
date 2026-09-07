@@ -167,6 +167,8 @@ module debug_subsystem #(
     // 2-to-1 crossbar
     xbar_varlat_n_to_one #(
         .XBAR_NMASTER(2),
+        .USE_OUTSTANDING(core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding),
+        .MAX_OUTSTANDING(core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING),
         .obi_req_t(obi_req_t),
         .obi_rsp_t(obi_rsp_t)
     ) xbar_varlat_n_to_one_i (
@@ -179,6 +181,10 @@ module debug_subsystem #(
     );
 
     xheep_obi_fifo #(
+        .FIFO_DEPTH(
+            core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding ?
+            core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING : 32'd1
+        ),
         .obi_req_t(obi_req_t),
         .obi_rsp_t(obi_rsp_t)
     ) obi_fifo_i (

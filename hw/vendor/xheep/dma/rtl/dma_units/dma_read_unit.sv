@@ -287,8 +287,7 @@ module dma_read_unit
   /* This small FIFO is used to hold the last 2 LSBs of the read address.
    * Each time that a GNT is received, the current address is pushed.
    * Each time that a RVALID is received, the value is popped.
-   * This feature enables the DMA to support outstanding transactions, 
-   * when in the future this feature will be added to X-HEEP.
+   * This feature enables the DMA to support outstanding transactions.
    */
   fifo_v3 #(
       .DEPTH(RVALID_FIFO_DEPTH),

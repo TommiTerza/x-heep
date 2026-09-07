@@ -37,12 +37,15 @@ package core_v_mini_mcu_pkg;
 
   localparam cpu_type_e CpuType = ${xheep.cpu().get_name()};
 
-  typedef enum logic {
+  typedef enum logic [1:0] {
     NtoM,
-    onetoM
+    onetoM,
+    outstanding
   } bus_type_e;
 
   localparam bus_type_e BusType = ${xheep.bus_type().value};
+
+  localparam int unsigned BUS_MAX_OUTSTANDING = 4;
 
   //master idx
   localparam logic [31:0] CORE_INSTR_IDX = 0;

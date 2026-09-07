@@ -221,8 +221,12 @@ module ao_peripheral_subsystem
 
   /* System bus to AO OBI FIFO */
   xheep_obi_fifo #(
-    .obi_req_t(obi_req_t),
-    .obi_rsp_t(obi_rsp_t)
+      .FIFO_DEPTH(
+          core_v_mini_mcu_pkg::BusType == core_v_mini_mcu_pkg::outstanding ?
+          core_v_mini_mcu_pkg::BUS_MAX_OUTSTANDING : 32'd1
+      ),
+      .obi_req_t(obi_req_t),
+      .obi_rsp_t(obi_rsp_t)
   ) obi_fifo_i (
       .clk_i,
       .rst_ni,

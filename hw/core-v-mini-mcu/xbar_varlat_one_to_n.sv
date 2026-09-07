@@ -11,6 +11,8 @@ module xbar_varlat_one_to_n #(
     parameter int unsigned XBAR_NSLAVE = 2,
     parameter int unsigned NUM_RULES = XBAR_NSLAVE,  // number of ranges in the address map
     parameter int unsigned AGGREGATE_GNT = 32'd0, // the master port is not aggregating multiple masters,
+    parameter bit USE_OUTSTANDING = 1'b0,
+    parameter int unsigned MAX_OUTSTANDING = 4,
     parameter type obi_req_t = logic,
     parameter type obi_rsp_t = logic,
     // Dependent parameters: do not override!
@@ -123,28 +125,65 @@ module xbar_varlat_one_to_n #(
     end
   endgenerate
 
-  // Instantiate crossbar
-  xbar_varlat #(
-      .AggregateGnt (AGGREGATE_GNT),
-      .NumIn        (32'd1),
-      .NumOut       (XBAR_NSLAVE),
-      .ReqDataWidth (ReqDataWidth),
-      .RespDataWidth(RspDataWidth),
-      .ExtPrio      (1'b0)            // do not use external arbiter priority
-  ) u_xbar_varlat (
-      .clk_i  (clk_i),
-      .rst_ni (rst_ni),
-      .rr_i   ('0),
-      .req_i  (master_xbar_req_req),
-      .add_i  (slave_idx),
-      .wdata_i(master_xbar_req_data),
-      .gnt_o  (xbar_master_rsp_gnt),
-      .vld_o  (xbar_master_rsp_rvalid),
-      .rdata_o(xbar_master_rsp_data),
-      .gnt_i  (slave_xbar_rsp_gnt),
-      .req_o  (xbar_slave_req_req),
-      .vld_i  (slave_xbar_rsp_rvalid),
-      .wdata_o(xbar_slave_req_data),
-      .rdata_i(slave_xbar_rsp_data)
-  );
+  generate
+    if (USE_OUTSTANDING) begin : gen_outstanding_xbar
+      xbar_varlat_outstanding #(
+          .AggregateGnt  (AGGREGATE_GNT),
+          .NumIn         (32'd1),
+          .NumOut        (XBAR_NSLAVE),
+          .ReqDataWidth  (ReqDataWidth),
+          .RespDataWidth (RspDataWidth),
+          .ExtPrio       (1'b0),            // do not use external arbiter priority
+          .MaxOutstanding(MAX_OUTSTANDING)
+      ) u_xbar_varlat (
+          .clk_i  (clk_i),
+          .rst_ni (rst_ni),
+          .rr_i   ('0),
+          .req_i  (master_xbar_req_req),
+          .add_i  (slave_idx),
+          .wdata_i(master_xbar_req_data),
+          .gnt_o  (xbar_master_rsp_gnt),
+          .vld_o  (xbar_master_rsp_rvalid),
+          .rdata_o(xbar_master_rsp_data),
+          .gnt_i  (slave_xbar_rsp_gnt),
+          .req_o  (xbar_slave_req_req),
+          .vld_i  (slave_xbar_rsp_rvalid),
+          .wdata_o(xbar_slave_req_data),
+          .rdata_i(slave_xbar_rsp_data)
+      );
+    end else begin : gen_legacy_xbar
+      xbar_varlat #(
+          .AggregateGnt (AGGREGATE_GNT),
+          .NumIn        (32'd1),
+          .NumOut       (XBAR_NSLAVE),
+          .ReqDataWidth (ReqDataWidth),
+          .RespDataWidth(RspDataWidth),
+          .ExtPrio      (1'b0)            // do not use external arbiter priority
+      ) u_xbar_varlat (
+          .clk_i  (clk_i),
+          .rst_ni (rst_ni),
+          .rr_i   ('0),
+          .req_i  (master_xbar_req_req),
+          .add_i  (slave_idx),
+          .wdata_i(master_xbar_req_data),
+          .gnt_o  (xbar_master_rsp_gnt),
+          .vld_o  (xbar_master_rsp_rvalid),
+          .rdata_o(xbar_master_rsp_data),
+          .gnt_i  (slave_xbar_rsp_gnt),
+          .req_o  (xbar_slave_req_req),
+          .vld_i  (slave_xbar_rsp_rvalid),
+          .wdata_o(xbar_slave_req_data),
+          .rdata_i(slave_xbar_rsp_data)
+      );
+    end
+  endgenerate
+
+`ifndef SYNTHESIS
+  // pragma translate_off
+  initial begin
+    assert (MAX_OUTSTANDING > 0)
+    else $fatal(1, "MAX_OUTSTANDING must be greater than 0.");
+  end
+  // pragma translate_on
+`endif
 endmodule
