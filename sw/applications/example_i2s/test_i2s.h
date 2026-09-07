@@ -80,7 +80,6 @@ bool configure_rx_dma(uint32_t *dst, uint32_t sample_count, uint8_t channel,
 bool configure_tx_dma(uint8_t channel);
 bool check_rx_samples(uint32_t *samples, uint32_t sample_count);
 bool sink_sample_matches(uint32_t sample, uint32_t sample_idx);
-void disable_i2s_rx(void);
 bool check_tx_sink_samples(mmio_region_t sink);
 bool arm_i2s_rx_tx(void);
 

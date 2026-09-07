@@ -200,12 +200,6 @@ bool sink_sample_matches(uint32_t sample, uint32_t sample_idx)
     return true;
 }
 
-void disable_i2s_rx(void)
-{
-    i2s_peri->CONTROL &=
-        ~(I2S_CONTROL_EN_RX_MASK << I2S_CONTROL_EN_RX_OFFSET);
-}
-
 bool check_tx_sink_samples(mmio_region_t sink)
 {
     uint32_t sample_idx = 0;
@@ -256,11 +250,19 @@ bool arm_i2s_rx_tx(void)
         return false;
     }
 
+    i2s_result_t tx_start_res = i2s_tx_start();
+    if (tx_start_res != kI2sOk) {
+        printf("I2S TX start failed with %d\n", tx_start_res);
+        return false;
+    }
+
+    /* i2s_rx_start() requires running clocks, but this test arms RX before
+     * i2s_init(). Preserve the TX enable set by the driver above. */
+    control = i2s_peri->CONTROL;
     control =
         bitfield_field32_write(control, I2S_CONTROL_EN_RX_FIELD, I2S_BOTH_CH);
-    control |= (1u << I2S_CONTROL_EN_TX_BIT);
-    control |= (1u << I2S_CONTROL_RESET_WATERMARK_BIT);
     i2s_peri->CONTROL = control;
+    i2s_rx_reset_waterlevel();
 
     return true;
 }

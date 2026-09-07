@@ -11,10 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "bitfield.h"
 #include "dma.h"
 #include "i2s.h"
-#include "i2s_structs.h"
 #include "i2s_tx_sink_regs.h"
 #include "mmio.h"
 #include "test_i2s.h"
@@ -72,10 +70,8 @@ int main(void)
             passed = launch_dma_transaction(&rx_trans, "I2S RX-only");
         }
 
-        if (i2s_is_running() &&
-            (bitfield_field32_read(i2s_peri->CONTROL,
-                                   I2S_CONTROL_EN_RX_FIELD) != I2S_DISABLE)) {
-            disable_i2s_rx();
+        if (i2s_is_running()) {
+            (void)i2s_rx_stop();
         }
 
         i2s_terminate();
@@ -106,10 +102,8 @@ int main(void)
         passed = launch_dma_transaction(&rx_trans, "I2S RX-only");
     }
 
-    if (i2s_is_running() &&
-        (bitfield_field32_read(i2s_peri->CONTROL, I2S_CONTROL_EN_RX_FIELD) !=
-         I2S_DISABLE)) {
-        disable_i2s_rx();
+    if (i2s_is_running()) {
+        (void)i2s_rx_stop();
     }
 
     i2s_terminate();
@@ -227,8 +221,10 @@ int main(void)
         passed = false;
     }
 
+    if (i2s_is_running()) {
+        (void)i2s_rx_stop();
+    }
     i2s_terminate();
-    disable_i2s_rx();
     mmio_region_write32(rx_tx_sink, I2S_TX_SINK_CONTROL_REG_OFFSET, 0);
     select_gpio_13_pad(0);
 #else

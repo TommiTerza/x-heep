@@ -116,8 +116,10 @@ module i2s_tx_sink #(
   always_ff @(posedge i2s_sck_i or negedge rst_ni) begin
     if (~rst_ni) begin
       overflow_sck <= 1'b0;
-    end else if (sample_valid_sck && !sample_ready_sck) begin
-      overflow_sck <= 1'b1;
+    end else begin
+      if (sample_valid_sck && !sample_ready_sck) begin
+        overflow_sck <= 1'b1;
+      end
     end
   end
 

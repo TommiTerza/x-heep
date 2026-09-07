@@ -76,20 +76,24 @@ module i2s_tx_channel #(
   always_ff @(negedge sck_i or negedge rst_ni) begin
     if (~rst_ni) begin
       sd_o <= 1'b0;
-    end else if (en_i && r_started && r_have_word) begin
-      sd_o <= r_shiftreg[word_width_i-r_count_bit];
     end else begin
-      sd_o <= 1'b0;
+      if (en_i && r_started && r_have_word) begin
+        sd_o <= r_shiftreg[word_width_i-r_count_bit];
+      end else begin
+        sd_o <= 1'b0;
+      end
     end
   end
 
   always_ff @(posedge sck_i or negedge rst_ni) begin
     if (~rst_ni) begin
       underflow_o <= 1'b0;
-    end else if (clear_underflow_i) begin
-      underflow_o <= 1'b0;
-    end else if (en_i && s_ws_edge && !data_valid_i) begin
-      underflow_o <= 1'b1;
+    end else begin
+      if (clear_underflow_i) begin
+        underflow_o <= 1'b0;
+      end else if (en_i && s_ws_edge && !data_valid_i) begin
+        underflow_o <= 1'b1;
+      end
     end
   end
 
