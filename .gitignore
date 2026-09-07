@@ -103,3 +103,6 @@ flow/OpenROAD-flow-scripts
 .continue
 private/
 .DS_Store
+
+# GTKwave files
+*.gtkw

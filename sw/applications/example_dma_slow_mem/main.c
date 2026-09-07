@@ -21,18 +21,24 @@
 #include "timer_sdk.h"
 
 /*  
- *  This code contains two different tests that can be run by defining the corresponding TEST_ID_* macro.
+ *  This code contains three different tests that can be run by defining the corresponding TEST_ID_* macro.
  *  - Write data to the slow memory with the DMA
  *  - Read data from the slow memory with the DMA
+ *  - Read data from a slow memory and write it to a second slow memory with the DMA
  */
 
 #define TEST_ID_0
 #define TEST_ID_1
+#define TEST_ID_2
 
 /* Enable verification */
 #define EN_VERIF 1
 
 /* Parameters */
+
+/* Size of each slow memory in the testharness */
+#define SLOW_MEMORY_SIZE 0x400
+#define SLOW_MEMORY2_START_ADDRESS (EXT_SLAVE_START_ADDRESS + SLOW_MEMORY_SIZE)
 
 /* Size of the extracted matrix (including strides on the input, excluding strides on the outputs) */
 #define SIZE_EXTR_D1 4
@@ -45,9 +51,9 @@
 #define STRIDE_OUT_D2 1
 
 /* Set the padding parameters */
-#define TOP_PAD 1
+#define TOP_PAD 0
 #define BOTTOM_PAD 0
-#define LEFT_PAD 1
+#define LEFT_PAD 0
 #define RIGHT_PAD 0
 
 #if !DMA_ZERO_PADDING && (TOP_PAD || BOTTOM_PAD || LEFT_PAD || RIGHT_PAD)
@@ -101,7 +107,8 @@ dma_target_t tgt_src;
 dma_target_t tgt_dst;
 dma_trans_t trans;
 
-int* ext_slave_memory = (int*)EXT_SLAVE_START_ADDRESS;
+volatile int* ext_slave_memory = (volatile int*)EXT_SLAVE_START_ADDRESS;
+volatile int* ext_slave_memory_2 = (volatile int*)SLOW_MEMORY2_START_ADDRESS;
 int dma_value = 0;
 
 uint32_t dst_ptr = 0, src_ptr = 0;
@@ -311,11 +318,12 @@ int main()
             if (i_in < TOP_PAD || i_in >= SIZE_EXTR_D2 + TOP_PAD || j_in < LEFT_PAD || j_in >= SIZE_EXTR_D1 + LEFT_PAD ||
                 stride_1d_cnt != 0 || stride_2d_cnt != 0)
             {
-                ext_slave_memory[dst_ptr] = 0;
+                copied_data_2D_CPU[dst_ptr] = 0;
             }
             else
             {
-                ext_slave_memory[dst_ptr] = test_data[src_ptr];
+                ext_slave_memory[src_ptr] = test_data[src_ptr];
+                copied_data_2D_CPU[dst_ptr] = test_data[src_ptr];
             }
 
             if (j_in < LEFT_PAD && i_in >= TOP_PAD && stride_1d_cnt == 0 && stride_2d_cnt == 0)
@@ -442,6 +450,109 @@ int main()
         #else
         PRINTF("0a:%d:1\n\r", cycles_cpu); 
         PRINTF("0b:%d:1\n\r", cycles_dma); 
+        #endif
+        return EXIT_FAILURE;
+    }
+    #endif
+
+    #endif
+
+    #ifdef TEST_ID_2
+
+    /* Reset for third test */
+    passed = 1;
+
+    /* Initialize the first slow memory */
+    for (int i = 0; i < OUT_DIM_2D; i++) {
+        ext_slave_memory[i] = test_data[i];
+        ext_slave_memory_2[i] = 0;
+    }
+
+    /* This test reads data from the slow memory and writes it to a second slow memory using the DMA */
+    tgt_src.ptr = (uint8_t *) EXT_SLAVE_START_ADDRESS;
+    tgt_src.inc_d1_du = 1;
+    tgt_src.inc_d2_du = 0;
+    tgt_src.trig = DMA_TRIG_MEMORY;
+    tgt_src.type = DMA_DATA_TYPE;
+
+    tgt_dst.ptr = (uint8_t *) SLOW_MEMORY2_START_ADDRESS;
+    tgt_dst.inc_d1_du = 1;
+    tgt_dst.inc_d2_du = 0;
+    tgt_dst.trig = DMA_TRIG_MEMORY;
+    tgt_dst.type = DMA_DATA_TYPE;
+
+    trans.src = &tgt_src;
+    trans.dst = &tgt_dst;
+    trans.mode = DMA_TRANS_MODE_SINGLE;
+    trans.dim = DMA_DIM_CONF_1D;
+    trans.size_d1_du     = OUT_DIM_2D;
+    trans.size_d2_du     = 0;
+    trans.win_du         = 0,
+    trans.end            = DMA_TRANS_END_INTR;
+
+    #if (DMA_ZERO_PADDING)
+    trans.pad_top_du     = 0,
+    trans.pad_bottom_du  = 0,
+    trans.pad_left_du    = 0,
+    trans.pad_right_du   = 0,
+    #endif
+
+    dma_init(NULL);
+
+    timer_start();
+
+    #if TEST_EN
+
+    res_valid = dma_validate_transaction(&trans, DMA_ENABLE_REALIGN, DMA_PERFORM_CHECKS_INTEGRITY);
+    res_load = dma_load_transaction(&trans);
+    res_launch = dma_launch(&trans);
+
+    #else
+
+    res_valid = dma_validate_transaction(&trans, DMA_ENABLE_REALIGN, DMA_PERFORM_CHECKS_INTEGRITY);
+    PRINTF("tran: %u \t%s\n\r", res_valid, res_valid == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+    res_load = dma_load_transaction(&trans);
+    PRINTF("load: %u \t%s\n\r", res_load, res_load == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+    res_launch = dma_launch(&trans);
+    PRINTF("laun: %u \t%s\n\r", res_launch, res_launch == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+    #endif
+
+    while( ! dma_is_ready(0)) {
+        /* Disable_interrupts */
+        /* This does not prevent waking up the core as this is controlled by the MIP register */
+
+        CSR_CLEAR_BITS(CSR_REG_MSTATUS, 0x8);
+        if ( dma_is_ready(0) == 0 ) {
+            wait_for_interrupt();
+            /* From here the core wakes up even if we did not jump to the ISR */
+        }
+        CSR_SET_BITS(CSR_REG_MSTATUS, 0x8);
+    }
+
+    #if EN_VERIF
+
+    /* Verify that the DMA copied the data to the second slow memory */
+    for (int i = 0; i < OUT_DIM_2D; i++) {
+        if (ext_slave_memory_2[i] != test_data[i]) {
+            passed = 0;
+        }
+    }
+
+    if (passed) {
+        #if TEST_EN == 0
+        PRINTF("TEST 2 PASSED!\n\r\n\r");
+        #else
+        PRINTF("2a:%d:0\n\r", cycles_cpu);
+        PRINTF("2b:%d:0\n\r", cycles_dma);
+        #endif
+    }
+    else
+    {
+        #if TEST_EN == 0
+        PRINTF("TEST 2 FAILED\n\r");
+        #else
+        PRINTF("2a:%d:1\n\r", cycles_cpu);
+        PRINTF("2b:%d:1\n\r", cycles_dma);
         #endif
         return EXIT_FAILURE;
     }

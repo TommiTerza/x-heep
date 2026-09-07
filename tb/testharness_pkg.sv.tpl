@@ -13,7 +13,7 @@ package testharness_pkg;
 `ifdef SIM_SYSTEMC
   localparam EXT_XBAR_NSLAVE = 1;
 `else
-  localparam EXT_XBAR_NSLAVE = ${2 + (1 if user_peripheral_domain.contains_peripheral('serial_link_reg') else 0)};
+  localparam EXT_XBAR_NSLAVE = ${3 + (1 if user_peripheral_domain.contains_peripheral('serial_link_reg') else 0)};
 `endif
 
   //master idx
@@ -36,15 +36,19 @@ package testharness_pkg;
   localparam logic [31:0] SLOW_MEMORY_SIZE = 32'h400;
   localparam logic [31:0] SLOW_MEMORY_END_ADDRESS = SLOW_MEMORY_START_ADDRESS + SLOW_MEMORY_SIZE;
 `endif
+  localparam logic [31:0] SLOW_MEMORY2_START_ADDRESS = SLOW_MEMORY_END_ADDRESS;
+  localparam logic [31:0] SLOW_MEMORY2_END_ADDRESS = SLOW_MEMORY2_START_ADDRESS + SLOW_MEMORY_SIZE;
   localparam logic [31:0] SLOW_MEMORY0_IDX = 32'd0;
   localparam logic [31:0] SLOW_MEMORY1_IDX = 32'd1;
+  localparam logic [31:0] SLOW_MEMORY2_IDX = 32'd2;
+  localparam int unsigned SLOW_MEMORY_MIN_RVALID_DELAY = 1;
 
   % if user_peripheral_domain.contains_peripheral('serial_link_reg'):
     //slave sl
-    localparam logic [31:0] SL_EXT_START_ADDRESS = SLOW_MEMORY_END_ADDRESS;
+    localparam logic [31:0] SL_EXT_START_ADDRESS = SLOW_MEMORY2_END_ADDRESS;
     localparam logic [31:0] SL_EXT_SIZE = 32'h10000;
     localparam logic [31:0] SL_EXT_END_ADDRESS = SL_EXT_START_ADDRESS + SL_EXT_SIZE;
-    localparam logic [31:0] SL_EXT_IDX = 32'd2;
+    localparam logic [31:0] SL_EXT_IDX = 32'd3;
   % endif
 
   localparam addr_map_rule_t [EXT_XBAR_NSLAVE-1:0] EXT_XBAR_ADDR_RULES = '{
@@ -59,6 +63,11 @@ package testharness_pkg;
           idx: SLOW_MEMORY1_IDX,
           start_addr: SLOW_MEMORY_START_ADDRESS,
           end_addr: SLOW_MEMORY_END_ADDRESS
+      },
+      '{
+          idx: SLOW_MEMORY2_IDX,
+          start_addr: SLOW_MEMORY2_START_ADDRESS,
+          end_addr: SLOW_MEMORY2_END_ADDRESS
       }
 `endif
       % if user_peripheral_domain.contains_peripheral('serial_link_reg'):

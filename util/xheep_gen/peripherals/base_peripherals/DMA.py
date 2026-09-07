@@ -117,6 +117,9 @@ class DMA(BasePeripheral):
         """
         Set the depth of the DMA FIFO.
         """
+        if value < 2:
+            raise ValueError("[MCU-GEN - DMA] ERROR: DMA FIFO depth must be at least 2")
+
         self._fifo_depth = value
 
     def set_addr_mode(self, value: str):
@@ -241,7 +244,8 @@ class DMA(BasePeripheral):
         """
         Checks if the DMA peripheral is valid (number of channels between 0 and 256, master ports
         between 0 and number of channels, channels per master port between 0 and number of channels,
-        number of channels per master port is not 0 if number of channels is not 1).
+        number of channels per master port is not 0 if number of channels is not 1, FIFO depth is at
+        least 2).
         """
         if self.get_num_channels() > 256 or self.get_num_channels() == 0:
             raise RuntimeError(
@@ -264,4 +268,9 @@ class DMA(BasePeripheral):
             raise RuntimeError(
                 f"[MCU-GEN - DMA] ERROR: Number of DMA channels per system bus master ports has to be between 0 and "
                 f"{self.get_num_channels()}, 0 excluded"
+            )
+
+        if self.get_fifo_depth() < 2:
+            raise RuntimeError(
+                "[MCU-GEN - DMA] ERROR: DMA FIFO depth must be at least 2"
             )

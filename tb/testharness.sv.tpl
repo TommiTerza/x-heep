@@ -492,6 +492,9 @@ module testharness #(
   assign slow_ram_slave_req[SLOW_MEMORY1_IDX] = ext_slave_req[SLOW_MEMORY1_IDX];
   assign ext_slave_resp[SLOW_MEMORY1_IDX]     = slow_ram_slave_resp[SLOW_MEMORY1_IDX];
 
+  assign slow_ram_slave_req[SLOW_MEMORY2_IDX] = ext_slave_req[SLOW_MEMORY2_IDX];
+  assign ext_slave_resp[SLOW_MEMORY2_IDX]     = slow_ram_slave_resp[SLOW_MEMORY2_IDX];
+
 `else
 
   obi_req_t  ext_systemc_req;
@@ -518,8 +521,9 @@ module testharness #(
 
       // External xbar slave memory example
       slow_memory #(
-          .NumWords (8192),
-          .DataWidth(32'd32)
+          .NumWords             (8192),
+          .DataWidth            (32'd32),
+          .MinRvalidDelayCycles (SLOW_MEMORY_MIN_RVALID_DELAY)
       ) slow_ram0_i (
           .clk_i,
           .rst_ni,
@@ -535,8 +539,9 @@ module testharness #(
       );
 
       slow_memory #(
-          .NumWords (8192),
-          .DataWidth(32'd32)
+          .NumWords             (8192),
+          .DataWidth            (32'd32),
+          .MinRvalidDelayCycles (SLOW_MEMORY_MIN_RVALID_DELAY)
       ) slow_ram1_i (
           .clk_i,
           .rst_ni,
@@ -549,6 +554,24 @@ module testharness #(
           .gnt_o(slow_ram_slave_resp[SLOW_MEMORY1_IDX].gnt),
           .rdata_o(slow_ram_slave_resp[SLOW_MEMORY1_IDX].rdata),
           .rvalid_o(slow_ram_slave_resp[SLOW_MEMORY1_IDX].rvalid)
+      );
+
+      slow_memory #(
+          .NumWords             (8192),
+          .DataWidth            (32'd32),
+          .MinRvalidDelayCycles (SLOW_MEMORY_MIN_RVALID_DELAY)
+      ) slow_ram2_i (
+          .clk_i,
+          .rst_ni,
+          .req_i(slow_ram_slave_req[SLOW_MEMORY2_IDX].req),
+          .we_i(slow_ram_slave_req[SLOW_MEMORY2_IDX].we),
+          .addr_i(slow_ram_slave_req[SLOW_MEMORY2_IDX].addr[15:2]),
+          .wdata_i(slow_ram_slave_req[SLOW_MEMORY2_IDX].wdata),
+          .be_i(slow_ram_slave_req[SLOW_MEMORY2_IDX].be),
+          // output ports
+          .gnt_o(slow_ram_slave_resp[SLOW_MEMORY2_IDX].gnt),
+          .rdata_o(slow_ram_slave_resp[SLOW_MEMORY2_IDX].rdata),
+          .rvalid_o(slow_ram_slave_resp[SLOW_MEMORY2_IDX].rvalid)
       );
 `endif
 

@@ -47,11 +47,11 @@ from interrupts.interrupts import Interrupts
 
 
 def config():
-    system = XHeep(BusType.onetoM)
+    system = XHeep(BusType.NtoM)
     system.set_cpu(cv32e20(rv32e=False, rv32m="RV32MSlow"))
 
     memory_ss = MemorySS()
-    memory_ss.add_ram_banks([32] * 2)
+    memory_ss.add_ram_banks([32] * 4)
     memory_ss.add_linker_section(LinkerSection.by_size("code", 0, 0x00000E800))
     memory_ss.add_linker_section(LinkerSection("data", 0x00000E800, None))
     system.set_memory_ss(memory_ss)
@@ -94,7 +94,7 @@ def config():
     base_peripheral_domain.add_peripheral(Bootrom(0x00010000))
     base_peripheral_domain.add_peripheral(SPI_flash(0x00020000, 0x00008000))
     base_peripheral_domain.add_peripheral(
-        W25Q128JW_Controller(0x00029000, 0x00007000, cache="no")
+        W25Q128JW_Controller(0x00029000, 0x00007000, cache="yes")
     )
     base_peripheral_domain.add_peripheral(
         DMA(
@@ -103,6 +103,7 @@ def config():
             num_channels=4,
             num_master_ports=2,
             num_channels_per_master_port=2,
+            fifo_depth=4,
         )
     )
     base_peripheral_domain.add_peripheral(Power_manager(0x00040000))

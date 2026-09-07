@@ -5,8 +5,15 @@
 module slow_memory #(
     parameter int unsigned NumWords = 32'd1024,  // Number of Words in data array
     parameter int unsigned DataWidth = 32'd32,  // Data signal width
+    // Minimum cycles from an accepted request to rvalid_o.
+    parameter int unsigned MinRvalidDelayCycles = 1,
     // DEPENDENT PARAMETERS, DO NOT OVERWRITE!
-    parameter int unsigned AddrWidth = (NumWords > 32'd1) ? $clog2(NumWords) : 32'd1
+    parameter int unsigned AddrWidth = (NumWords > 32'd1) ? $clog2(NumWords) : 32'd1,
+    parameter int unsigned MinRvalidWaitCycles = (MinRvalidDelayCycles > 0) ?
+        MinRvalidDelayCycles - 1 : 0,
+    parameter int unsigned MaxRvalidWaitCycles = MinRvalidWaitCycles + 31,
+    parameter int unsigned RvalidCounterWidth = (MaxRvalidWaitCycles > 0) ?
+        $clog2(MaxRvalidWaitCycles + 1) : 1
 ) (
     input  logic                 clk_i,    // Clock
     input  logic                 rst_ni,   // Asynchronous reset active low
@@ -42,7 +49,9 @@ module slow_memory #(
   logic [          3:0] mem_be;
 
   logic rvalid_n, rvalid_q;
-  logic [4:0] counter_n, counter_q;
+  logic [RvalidCounterWidth-1:0] counter_n, counter_q;
+  logic [RvalidCounterWidth-1:0] min_rvalid_wait;
+  logic [RvalidCounterWidth-1:0] random_rvalid_wait;
 
   typedef enum logic {
     READY,
@@ -99,6 +108,10 @@ module slow_memory #(
     mem_wdata_n = mem_wdata_q;
     mem_be_n    = mem_be_q;
     sample_req  = 1'b0;
+    random_rvalid_wait = '0;
+    if (random3) begin
+      random_rvalid_wait[4:0] = random2[4:0];
+    end
 
     unique case (state_q)
 
@@ -107,7 +120,7 @@ module slow_memory #(
         gnt_o = random1[0];
         if (req_i) begin
           if (gnt_o) begin
-            counter_n = random3 ? random2[4:0] : '0;
+            counter_n = min_rvalid_wait + random_rvalid_wait;
             if (counter_n == 0) begin
               mem_req   = req_i;
               mem_we    = we_i;
@@ -143,6 +156,8 @@ module slow_memory #(
     endcase
 
   end
+
+  assign min_rvalid_wait = MinRvalidWaitCycles;
 
   tc_sram #(
       .NumWords (NumWords),
