@@ -30,6 +30,7 @@ generate:
       name:             i2s_tx_sink
       rtl_dir:          rtl
       sw_path:          ../../../sw/device/lib/drivers/i2s_tx_sink/i2s_tx_sink_regs.h
+      structs_sw_path:  ../../../sw/device/lib/drivers/i2s_tx_sink/i2s_tx_sink_structs.h
       doc_path:         ../../../sw/device/lib/drivers/i2s_tx_sink/i2s_tx_sink_regs.md
 
 targets:

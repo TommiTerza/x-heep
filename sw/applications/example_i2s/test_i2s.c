@@ -11,7 +11,7 @@
 #include "bitfield.h"
 #include "i2s.h"
 #include "i2s_structs.h"
-#include "i2s_tx_sink_regs.h"
+#include "i2s_tx_sink.h"
 #include "pad_control.h"
 #include "pad_control_regs.h"
 
@@ -31,17 +31,6 @@ dma_trans_t rx_trans;
 static dma_target_t tx_src;
 static dma_target_t tx_dst;
 dma_trans_t tx_trans;
-
-void select_gpio_13_pad(uint8_t mux)
-{
-    pad_control_t pad_control = {
-        .base_addr = mmio_region_from_addr((uintptr_t)PAD_CONTROL_START_ADDRESS),
-    };
-
-    pad_control_set_mux(&pad_control,
-                        (ptrdiff_t)PAD_CONTROL_PAD_MUX_GPIO_13_REG_OFFSET,
-                        mux);
-}
 
 void clear_samples(uint32_t *samples, uint32_t sample_count)
 {
@@ -200,7 +189,7 @@ bool sink_sample_matches(uint32_t sample, uint32_t sample_idx)
     return true;
 }
 
-bool check_tx_sink_samples(mmio_region_t sink)
+bool check_tx_sink_samples(void)
 {
     uint32_t sample_idx = 0;
     uint32_t leading_zeros = 0;
@@ -208,7 +197,7 @@ bool check_tx_sink_samples(mmio_region_t sink)
 
     for (uint32_t i = 0; i < I2S_TX_SAMPLES + I2S_TX_SINK_EXTRA_READS; ++i) {
         uint32_t sample =
-            mmio_region_read32(sink, I2S_TX_SINK_RXDATA_REG_OFFSET);
+            i2s_tx_sink_read_data();
 
         if (!payload_started) {
             if (sample == 0) {

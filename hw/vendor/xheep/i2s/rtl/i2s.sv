@@ -102,10 +102,12 @@ module i2s #(
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
       data_tx_overflow <= 1'b0;
-    end else if (reg2hw.control.reset_tx_overflow.q) begin
-      data_tx_overflow <= 1'b0;
-    end else if (reg2hw.txdata.qe && !data_tx_ready) begin
-      data_tx_overflow <= 1'b1;
+    end else begin
+        if (reg2hw.control.reset_tx_overflow.q) begin
+            data_tx_overflow <= 1'b0;
+        end else if (reg2hw.txdata.qe && !data_tx_ready) begin
+            data_tx_overflow <= 1'b1;
+        end
     end
   end
 
