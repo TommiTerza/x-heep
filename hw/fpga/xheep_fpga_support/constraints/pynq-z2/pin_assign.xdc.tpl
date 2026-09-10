@@ -95,7 +95,7 @@ set_property -dict {PACKAGE_PIN A20 IOSTANDARD LVCMOS33} [get_ports {pdm2pcm_pdm
 set_property -dict {PACKAGE_PIN B19 IOSTANDARD LVCMOS33} [get_ports {i2s_sck_io}] ; # rpi_gpio_tri_io[8]
 set_property -dict {PACKAGE_PIN B20 IOSTANDARD LVCMOS33} [get_ports {i2s_ws_io}] ; # rpi_gpio_tri_io[4]
 set_property -dict {PACKAGE_PIN W9 IOSTANDARD LVCMOS33} [get_ports {i2s_sd_rx_io}] ; # rpi_gpio_tri_io[]
-set_property -dict {PACKAGE_PIN L14 IOSTANDARD LVCMOS33} [get_ports {i2s_sd_tx_io}] ; # rgbleds_6bits_tri_o[4], shared I2S TX / GPIO 22 pad
+set_property -dict {PACKAGE_PIN F19 IOSTANDARD LVCMOS33} [get_ports {i2s_sd_tx_io}] ; # Raspberry Pi header pin 24, shared I2S TX / GPIO 22 pad
 
 # SPI2
 set_property -dict {PACKAGE_PIN W6 IOSTANDARD LVCMOS33} [get_ports {spi2_csb_o[0]}] ; # rpi_gpio_tri_io[15]
