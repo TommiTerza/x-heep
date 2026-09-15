@@ -42,7 +42,9 @@
 #define I2S_MIC_LEFT_SAMPLE  0x08765431u
 #define I2S_MIC_RIGHT_SAMPLE 0x0fedcba9u
 
-void select_i2s_tx_pad(uint8_t mux);
+#ifdef TARGET_IS_FPGA
+bool run_fpga_tx(void);
+#endif
 void clear_samples(uint32_t *samples, uint32_t sample_count);
 bool launch_dma_transaction(dma_trans_t *trans, const char *name);
 bool configure_rx_dma(uint32_t *dst, uint32_t sample_count, uint8_t channel,
@@ -51,6 +53,7 @@ bool configure_tx_dma(uint8_t channel);
 bool check_rx_samples(uint32_t *samples, uint32_t sample_count);
 bool sink_sample_matches(uint32_t sample, uint32_t sample_idx);
 bool check_tx_sink_samples(void);
+void configure_i2s_pads(void);
 bool arm_i2s_rx_tx(void);
 
 #endif /* TEST_I2S_H_ */

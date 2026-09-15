@@ -29,9 +29,13 @@
  * - Simultaneous TX and RX DMA transfers on different DMA channels
  */
 
+#ifdef TARGET_IS_FPGA
+#define TEST_ID_1
+#else
 #define TEST_ID_0
 #define TEST_ID_1
 #define TEST_ID_2
+#endif
 
 #if !defined(TEST_ID_0) && !defined(TEST_ID_1) && !defined(TEST_ID_2)
 #error "example_i2s requires at least one TEST_ID_* macro"
@@ -63,6 +67,8 @@ extern dma_trans_t tx_trans;
 int main(void)
 {
     bool passed = true;
+
+    configure_i2s_pads();
 
     #ifdef TEST_ID_0
 
@@ -206,8 +212,10 @@ int main(void)
 
     i2s_terminate();
     i2s_tx_sink_stop();
+#elif defined(TARGET_IS_FPGA)
+    passed = run_fpga_tx();
 #else
-    PRINTF("Skipping I2S TX-only test outside simulation.\n\r");
+    PRINTF("Skipping I2S TX-only test on this target.\n\r");
 #endif
 
     if (!passed) {

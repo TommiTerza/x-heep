@@ -133,8 +133,56 @@ bool configure_tx_dma(uint8_t channel)
         .channel = channel,
     };
 
+#ifdef TARGET_IS_FPGA
+    /* Repeat without CPU reload gaps or completion interrupts. */
+    tx_trans.mode = DMA_TRANS_MODE_CIRCULAR;
+    tx_trans.end = DMA_TRANS_END_POLLING;
+#endif
+
     return load_dma_transaction(&tx_trans, "I2S TX");
 }
+
+#ifdef TARGET_IS_FPGA
+bool run_fpga_tx(void)
+{
+    dma_init(NULL);
+    if (!configure_tx_dma(I2S_TX_DMA_CH) ||
+        !launch_dma_transaction(&tx_trans, "I2S TX")) {
+        return false;
+    }
+
+    /* Fill the FIFO before enabling clocks to avoid startup underflow. */
+    uint32_t remaining = 100000;
+    while (i2s_tx_ready() && remaining != 0) {
+        --remaining;
+    }
+    if (i2s_tx_ready()) {
+        printf("I2S TX FIFO prefill timed out\n");
+        dma_stop_circular(I2S_TX_DMA_CH);
+        return false;
+    }
+
+    if (i2s_tx_start() != kI2sOk ||
+        i2s_init(I2S_FPGA_CLK_DIV, I2S_32_BITS) != kI2sOk) {
+        printf("I2S TX startup failed\n");
+        dma_stop_circular(I2S_TX_DMA_CH);
+        i2s_terminate();
+        return false;
+    }
+
+    printf("I2S TX: repeating 12 words, 32-bit I2S, divider %u. Reset to stop.\n",
+           I2S_FPGA_CLK_DIV);
+    while (!i2s_tx_underflow() && !i2s_tx_overflow()) {
+        /* Circular DMA owns the stream; the CPU only monitors errors. */
+    }
+
+    printf("I2S TX stream failed: underflow=%u overflow=%u\n",
+           (unsigned)i2s_tx_underflow(), (unsigned)i2s_tx_overflow());
+    dma_stop_circular(I2S_TX_DMA_CH);
+    i2s_terminate();
+    return false;
+}
+#endif
 
 static bool rx_sample_matches(uint32_t sample, uint32_t sample_idx,
                               uint32_t *first_sample)
@@ -226,6 +274,17 @@ bool check_tx_sink_samples(void)
     }
 
     return true;
+}
+
+void configure_i2s_pads(void)
+{
+    pad_control_t pad_control = {
+        .base_addr = mmio_region_from_addr(PAD_CONTROL_START_ADDRESS),
+    };
+    pad_control_set_mux(&pad_control, PAD_CONTROL_PAD_MUX_I2S_SCK_REG_OFFSET, 0);
+    pad_control_set_mux(&pad_control, PAD_CONTROL_PAD_MUX_I2S_WS_REG_OFFSET, 0);
+    pad_control_set_mux(&pad_control, PAD_CONTROL_PAD_MUX_I2S_SD_RX_REG_OFFSET, 0);
+    pad_control_set_mux(&pad_control, PAD_CONTROL_PAD_MUX_I2S_SD_TX_REG_OFFSET, 0);
 }
 
 bool arm_i2s_rx_tx(void)
