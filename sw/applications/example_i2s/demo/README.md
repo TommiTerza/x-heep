@@ -2,6 +2,9 @@
 
 Maintainer: Tommaso Terzano <tommaso.terzano@epfl.ch>
 
+See the [I2S peripheral documentation](../../../../docs/source/Peripherals/I2S.md)
+for the hardware interface, driver, DMA, and register reference.
+
 Select tests using the `TEST_ID_*` definitions in `../main.c`:
 
 | Test | FPGA | Simulation |
