@@ -309,7 +309,7 @@ module testharness #(
       .gpio_12_io(gpio[12]),
       .ddr_rcv_clk_i(ddr_clk_i_xheep[0]),
       .ddr_snd_clk_o(ddr_clk_o_xheep[0]),
-      .spi_slave_sck_io(spi_sck),
+      .spi_slave_sck_i(spi_sck),
       .spi_slave_cs_io(spi_csb[0]),
       .spi_slave_miso_io(spi_sd_io[1]),
       .spi_slave_mosi_io(spi_sd_io[0]),

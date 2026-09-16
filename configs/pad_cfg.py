@@ -141,7 +141,7 @@ def config(xheep: XHeep) -> PadRing:
             ["spi_sck"],
             ["spi_cs_0"],
             ["spi_cs_1"],
-            ["spi_sd_0"],
+            ["spi_sd_0", "gpio_14"],
             ["spi_sd_1"],
             ["spi_sd_2"],
             ["spi_sd_3"],

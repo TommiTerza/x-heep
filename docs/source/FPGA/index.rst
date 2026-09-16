@@ -8,4 +8,9 @@ Check this section to run your design on the FPGA.
    :glob:
 
    RunOnFPGA
-   *
+   ZCU_104
+   AUP-ZU3
+   Genesys2
+   VPK_180
+   Petalinux_VPK180
+   DEBUG_with_ILA
