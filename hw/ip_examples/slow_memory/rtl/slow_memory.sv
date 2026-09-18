@@ -12,8 +12,9 @@ module slow_memory #(
     parameter int unsigned MinRvalidWaitCycles = (MinRvalidDelayCycles > 0) ?
         MinRvalidDelayCycles - 1 : 0,
     parameter int unsigned MaxRvalidWaitCycles = MinRvalidWaitCycles + 31,
-    parameter int unsigned RvalidCounterWidth = (MaxRvalidWaitCycles > 0) ?
-        $clog2(MaxRvalidWaitCycles + 1) : 1
+    parameter int unsigned RvalidCounterWidth = (MaxRvalidWaitCycles > 0) ? $clog2(
+        MaxRvalidWaitCycles + 1
+    ) : 1
 ) (
     input  logic                 clk_i,    // Clock
     input  logic                 rst_ni,   // Asynchronous reset active low
@@ -92,22 +93,22 @@ module slow_memory #(
   end
 
   always_comb begin
-    gnt_o       = 1'b0;
-    rvalid_o    = rvalid_q;
-    state_n     = state_q;
-    counter_n   = counter_q - 1;
-    rvalid_n    = rvalid_q;
-    mem_req     = '0;
-    mem_we      = '0;
-    mem_addr    = '0;
-    mem_wdata   = '0;
-    mem_be      = '0;
-    mem_req_n   = mem_req_q;
-    mem_we_n    = mem_we_q;
-    mem_addr_n  = mem_addr_q;
-    mem_wdata_n = mem_wdata_q;
-    mem_be_n    = mem_be_q;
-    sample_req  = 1'b0;
+    gnt_o              = 1'b0;
+    rvalid_o           = rvalid_q;
+    state_n            = state_q;
+    counter_n          = counter_q - 1;
+    rvalid_n           = rvalid_q;
+    mem_req            = '0;
+    mem_we             = '0;
+    mem_addr           = '0;
+    mem_wdata          = '0;
+    mem_be             = '0;
+    mem_req_n          = mem_req_q;
+    mem_we_n           = mem_we_q;
+    mem_addr_n         = mem_addr_q;
+    mem_wdata_n        = mem_wdata_q;
+    mem_be_n           = mem_be_q;
+    sample_req         = 1'b0;
     random_rvalid_wait = '0;
     if (random3) begin
       random_rvalid_wait[4:0] = random2[4:0];
@@ -157,7 +158,7 @@ module slow_memory #(
 
   end
 
-  assign min_rvalid_wait = MinRvalidWaitCycles;
+  assign min_rvalid_wait = RvalidCounterWidth'(MinRvalidWaitCycles);
 
   tc_sram #(
       .NumWords (NumWords),

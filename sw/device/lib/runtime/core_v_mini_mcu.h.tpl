@@ -79,6 +79,7 @@ extern "C" {
 #define DMA_ADDR_MODE ${dma.get_addr_mode()}
 #define DMA_SUBADDR_MODE ${dma.get_subaddr_mode()}
 #define DMA_HW_FIFO_MODE ${dma.get_hw_fifo_mode()}
+#define DMA_2D ${dma.get_two_d()}
 #define DMA_ZERO_PADDING ${dma.get_zero_padding()}
 
 // user peripherals

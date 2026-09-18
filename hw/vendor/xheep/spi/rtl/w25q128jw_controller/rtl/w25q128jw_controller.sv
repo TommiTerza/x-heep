@@ -17,6 +17,8 @@
  *                                   <alaingirardvd@gmail.com>
  */
 
+`include "dma_conf.svh"
+
 module w25q128jw_controller
   import dma_reg_pkg::*;
   import power_manager_pkg::*;
@@ -1831,16 +1833,22 @@ module w25q128jw_controller
             external_dma_hw2reg_o.dst_ptr.d                        = '0;
             external_dma_hw2reg_o.size_d1.de                       = 1'b1;
             external_dma_hw2reg_o.size_d1.d                        = '0;
+`ifdef DMA_2D_EN
             external_dma_hw2reg_o.size_d2.de                       = 1'b1;
             external_dma_hw2reg_o.size_d2.d                        = '0;
+`endif
             external_dma_hw2reg_o.src_ptr_inc_d1.de                = 1'b1;
             external_dma_hw2reg_o.src_ptr_inc_d1.d                 = '0;
+`ifdef DMA_2D_EN
             external_dma_hw2reg_o.src_ptr_inc_d2.de                = 1'b1;
             external_dma_hw2reg_o.src_ptr_inc_d2.d                 = '0;
+`endif
             external_dma_hw2reg_o.dst_ptr_inc_d1.de                = 1'b1;
             external_dma_hw2reg_o.dst_ptr_inc_d1.d                 = '0;
+`ifdef DMA_2D_EN
             external_dma_hw2reg_o.dst_ptr_inc_d2.de                = 1'b1;
             external_dma_hw2reg_o.dst_ptr_inc_d2.d                 = '0;
+`endif
             external_dma_hw2reg_o.slot.rx_trigger_slot.de          = 1'b1;
             external_dma_hw2reg_o.slot.rx_trigger_slot.d           = '0;
             external_dma_hw2reg_o.slot.tx_trigger_slot.de          = 1'b1;
@@ -1853,12 +1861,16 @@ module w25q128jw_controller
             external_dma_hw2reg_o.sign_ext.d                       = '0;
             external_dma_hw2reg_o.mode.de                          = 1'b1;
             external_dma_hw2reg_o.mode.d                           = '0;
+`ifdef DMA_2D_EN
             external_dma_hw2reg_o.dim_config.de                    = 1'b1;
             external_dma_hw2reg_o.dim_config.d                     = '0;
+`endif
             external_dma_hw2reg_o.mode.de                          = 1'b1;
             external_dma_hw2reg_o.mode.d                           = '0;
+`ifdef DMA_2D_EN
             external_dma_hw2reg_o.dim_inv.de                       = 1'b1;
             external_dma_hw2reg_o.dim_inv.d                        = '0;
+`endif
             external_dma_hw2reg_o.interrupt_en.transaction_done.de = 1'b1;
             external_dma_hw2reg_o.interrupt_en.transaction_done.d  = '0;
             external_dma_hw2reg_o.interrupt_en.window_done.de      = 1'b1;
@@ -1866,10 +1878,12 @@ module w25q128jw_controller
             external_dma_hw2reg_o.slot_wait_counter.de             = 1'b1;
             external_dma_hw2reg_o.slot_wait_counter.d              = '0;
 `ifdef ZERO_PADDING_EN
+`ifdef DMA_2D_EN
             external_dma_hw2reg_o.pad_top.de    = 1'b1;
             external_dma_hw2reg_o.pad_top.d     = '0;
             external_dma_hw2reg_o.pad_bottom.de = 1'b1;
             external_dma_hw2reg_o.pad_bottom.d  = '0;
+`endif
             external_dma_hw2reg_o.pad_right.de  = 1'b1;
             external_dma_hw2reg_o.pad_right.d   = '0;
             external_dma_hw2reg_o.pad_left.de   = 1'b1;

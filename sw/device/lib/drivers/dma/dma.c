@@ -211,8 +211,10 @@ static inline uint32_t get_increment_b_1D( dma_target_t * p_tgt,
  * @param channel The channel to use as target.
  * @return The number of bytes of the increment.
  */
+#if DMA_2D
 static inline uint32_t get_increment_b_2D( dma_target_t * p_tgt,
                                     uint8_t channel  );
+#endif
 
 
 /****************************************************************************/
@@ -385,13 +387,15 @@ void dma_init( dma *dma_peri )
         dma_subsys_per[i].peri->SRC_PTR           = 0;
         dma_subsys_per[i].peri->DST_PTR           = 0;
         dma_subsys_per[i].peri->SIZE_D1           = 0;
-        dma_subsys_per[i].peri->SIZE_D2           = 0;
         dma_subsys_per[i].peri->SRC_PTR_INC_D1    = 0;
-        dma_subsys_per[i].peri->SRC_PTR_INC_D2    = 0;
         dma_subsys_per[i].peri->DST_PTR_INC_D1    = 0;
+        #if DMA_2D
+        dma_subsys_per[i].peri->SIZE_D2           = 0;
+        dma_subsys_per[i].peri->SRC_PTR_INC_D2    = 0;
         dma_subsys_per[i].peri->DST_PTR_INC_D2    = 0;
         dma_subsys_per[i].peri->DIM_CONFIG        = 0;
         dma_subsys_per[i].peri->DIM_INV           = 0;
+        #endif
         dma_subsys_per[i].peri->SLOT              = 0;
         dma_subsys_per[i].peri->SRC_DATA_TYPE     = 0;
         dma_subsys_per[i].peri->DST_DATA_TYPE     = 0;
@@ -407,18 +411,45 @@ void dma_init( dma *dma_peri )
         #endif
 
         #if DMA_ZERO_PADDING
+        #if DMA_2D
         dma_subsys_per[i].peri->PAD_TOP        = 0;
         dma_subsys_per[i].peri->PAD_BOTTOM     = 0;
+        #endif
         dma_subsys_per[i].peri->PAD_LEFT       = 0;
         dma_subsys_per[i].peri->PAD_RIGHT      = 0;
         #endif
     }
 }
 
+#if !DMA_2D
+static dma_config_flags_t dma_check_1d_transaction(dma_trans_t *p_trans)
+{
+    if (p_trans->dim != DMA_DIM_CONF_1D || p_trans->dim_inv != 0 ||
+        p_trans->size_d2_du != 0 || p_trans->src->inc_d2_du != 0 ||
+        p_trans->dst->inc_d2_du != 0
+        #if DMA_ZERO_PADDING
+        || p_trans->pad_top_du != 0 || p_trans->pad_bottom_du != 0
+        #endif
+    )
+    {
+        p_trans->flags |= DMA_CONFIG_INCOMPATIBLE | DMA_CONFIG_CRITICAL_ERROR;
+        return p_trans->flags;
+    }
+    return DMA_CONFIG_OK;
+}
+#endif
+
 dma_config_flags_t dma_validate_transaction(    dma_trans_t        *p_trans,
                                                 dma_en_realign_t   p_enRealign,
                                                 dma_perf_checks_t  p_check )
 {
+    #if !DMA_2D
+    if (dma_check_1d_transaction(p_trans) != DMA_CONFIG_OK)
+    {
+        return p_trans->flags;
+    }
+    #endif
+
     /*
     * SANITY CHECKS
     */
@@ -809,6 +840,13 @@ dma_config_flags_t dma_validate_transaction(    dma_trans_t        *p_trans,
 
 dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
 {
+    #if !DMA_2D
+    if (dma_check_1d_transaction(p_trans) != DMA_CONFIG_OK)
+    {
+        return p_trans->flags;
+    }
+    #endif
+
     uint8_t channel = p_trans->channel;
     /*
      * CHECK FOR CRITICAL ERRORS
@@ -892,11 +930,12 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
      */
 
     /*
-    * In the case of a 1D transaction with padding enabled, the DMA has to be configured to treat
-    * the transaction as a 2D one with a second dimension of 1 du and a second dimension increment of 1 du.
+     * Preserve the existing single-row 2D setup when 2D hardware is available.
+     * A 1D-only DMA handles left/right padding without dimension conversion.
     */
 
     #if DMA_ZERO_PADDING
+    #if DMA_2D
     if (p_trans->dim == DMA_DIM_CONF_1D && (p_trans->pad_left_du != 0 || p_trans->pad_right_du != 0))
     {
         p_trans->dim = DMA_DIM_CONF_2D;
@@ -942,6 +981,18 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
                         DMA_PAD_RIGHT_PAD_OFFSET,
                         dma_subsys_per[channel].peri);
     }
+    #else
+    write_register(p_trans->pad_left_du,
+                   DMA_PAD_LEFT_REG_OFFSET,
+                   DMA_PAD_LEFT_PAD_MASK,
+                   DMA_PAD_LEFT_PAD_OFFSET,
+                   dma_subsys_per[channel].peri);
+    write_register(p_trans->pad_right_du,
+                   DMA_PAD_RIGHT_REG_OFFSET,
+                   DMA_PAD_RIGHT_PAD_MASK,
+                   DMA_PAD_RIGHT_PAD_OFFSET,
+                   dma_subsys_per[channel].peri);
+    #endif
     #endif
 
     /*
@@ -973,11 +1024,13 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
      * SET THE TRANSPOSITION MODE
      */
 
+    #if DMA_2D
     write_register(dma_subsys_per[channel].trans->dim_inv,
                    DMA_DIM_INV_REG_OFFSET,
                    0x1 << DMA_DIM_INV_SEL_BIT,
                    DMA_DIM_INV_SEL_BIT,
                    dma_subsys_per[channel].peri);
+    #endif
 
     /*
      * SET THE INCREMENTS
@@ -1000,6 +1053,7 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
                     DMA_SRC_PTR_INC_D1_INC_OFFSET,
                     dma_subsys_per[channel].peri);
 
+    #if DMA_2D
     if(dma_subsys_per[channel].trans->dim == DMA_DIM_CONF_2D)
     {
         write_register(  get_increment_b_2D( dma_subsys_per[channel].trans->src, channel),
@@ -1008,6 +1062,7 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
                         DMA_SRC_PTR_INC_D2_INC_OFFSET,
                         dma_subsys_per[channel].peri );
     }
+    #endif
 
     #if DMA_ADDR_MODE
     if(dma_subsys_per[channel].trans->mode != DMA_TRANS_MODE_ADDRESS)
@@ -1018,6 +1073,7 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
                         DMA_DST_PTR_INC_D1_INC_OFFSET,
                         dma_subsys_per[channel].peri );
         
+    #if DMA_2D
         if(dma_subsys_per[channel].trans->dim == DMA_DIM_CONF_2D)
         {
             write_register(  get_increment_b_2D( dma_subsys_per[channel].trans->dst, channel),
@@ -1026,6 +1082,7 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
                         DMA_DST_PTR_INC_D2_INC_OFFSET,
                         dma_subsys_per[channel].peri );
         }
+    #endif
     }
     #else 
     write_register(  get_increment_b_1D( dma_subsys_per[channel].trans->dst, channel),
@@ -1034,6 +1091,7 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
                         DMA_DST_PTR_INC_D1_INC_OFFSET,
                         dma_subsys_per[channel].peri );
         
+    #if DMA_2D
     if(dma_subsys_per[channel].trans->dim == DMA_DIM_CONF_2D)
     {
         write_register(  get_increment_b_2D( dma_subsys_per[channel].trans->dst, channel),
@@ -1042,6 +1100,7 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
                     DMA_DST_PTR_INC_D2_INC_OFFSET,
                     dma_subsys_per[channel].peri );
     }
+    #endif
     #endif
 
     /*
@@ -1073,11 +1132,13 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
     /* 
      * SET THE DIMENSIONALITY
      */
+    #if DMA_2D
     write_register(  dma_subsys_per[channel].trans->dim,
                     DMA_DIM_CONFIG_REG_OFFSET,
                     0x1,
                     DMA_DIM_CONFIG_DMA_DIM_BIT,
                     dma_subsys_per[channel].peri );
+    #endif
 
     /*
      * SET THE SIGN EXTENSION BIT
@@ -1120,6 +1181,13 @@ dma_config_flags_t dma_load_transaction( dma_trans_t *p_trans)
 
 dma_config_flags_t dma_launch( dma_trans_t *p_trans)
 {
+    #if !DMA_2D
+    if (dma_check_1d_transaction(p_trans) != DMA_CONFIG_OK)
+    {
+        return p_trans->flags;
+    }
+    #endif
+
     uint8_t channel = p_trans->channel;
 
     /*
@@ -1157,6 +1225,7 @@ dma_config_flags_t dma_launch( dma_trans_t *p_trans)
 
     /* Load the size(s) and start the transaction. */
 
+    #if DMA_2D
     if(dma_subsys_per[channel].trans->dim == DMA_DIM_CONF_2D)
     {
         write_register( dma_subsys_per[channel].trans->size_d2_du,
@@ -1166,6 +1235,7 @@ dma_config_flags_t dma_launch( dma_trans_t *p_trans)
                         dma_subsys_per[channel].peri
                       );
     }
+    #endif
 
     write_register( dma_subsys_per[channel].trans->size_d1_du,
                     DMA_SIZE_D1_REG_OFFSET,
@@ -1529,6 +1599,7 @@ static inline uint32_t get_increment_b_1D( dma_target_t * p_tgt,
     return inc_b;
 }
 
+#if DMA_2D
 static inline uint32_t get_increment_b_2D( dma_target_t * p_tgt,
                                            uint8_t channel )
 {
@@ -1554,6 +1625,7 @@ static inline uint32_t get_increment_b_2D( dma_target_t * p_tgt,
     }
     return inc_b;
 }
+#endif
 
 
 #ifdef __cplusplus

@@ -30,6 +30,7 @@ class DMA(BasePeripheral):
         hw_fifo_mode: str = "yes",
         zero_padding: str = "yes",
         is_included: str = "yes",
+        two_dim_transfers: str = "yes",
     ):
         """
         Initialize the DMA peripheral.
@@ -50,6 +51,7 @@ class DMA(BasePeripheral):
         self._addr_mode = 0 if addr_mode == "no" else 1
         self._subaddr_mode = 0 if subaddr_mode == "no" else 1
         self._hw_fifo_mode = 0 if hw_fifo_mode == "no" else 1
+        self.set_two_d(two_dim_transfers)
         self._zero_padding = 0 if zero_padding == "no" else 1
         self._is_included = 0 if is_included == "no" else 1
 
@@ -193,6 +195,16 @@ class DMA(BasePeripheral):
         Get the zero padding mode of the DMA.
         """
         return self._zero_padding
+
+    def set_two_d(self, value: str):
+        """Enable or disable 2D transfers and transposition."""
+        if value not in ["yes", "no"]:
+            raise ValueError("Invalid 2D mode. Must be 'yes' or 'no'.")
+        self._two_d = 1 if value == "yes" else 0
+
+    def get_two_d(self):
+        """Get whether 2D transfers are supported."""
+        return self._two_d
 
     def get_xbar_array(self):
         """

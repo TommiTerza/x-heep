@@ -360,14 +360,15 @@ typedef struct
     need to use one same increment. */
     uint32_t            size_d1_du; /*!< The size of the transfer along D1, in data units */
     uint32_t            size_d2_du; /*!< The size of the transfer along D2, in data units */
+    /* DMA_2D == 0 rejects D2 sizes, increments, transposition, and top/bottom padding. */
     dma_dim_t           dim; /*!< Sets the dimensionality of the
     DMA, either 1D or 2D. */
     
     #if DMA_ZERO_PADDING
     uint8_t             pad_top_du; /*!< Padding at the top of the 2D transfer. */
     uint8_t             pad_bottom_du; /*!< Padding at the bottom of the 2D transfer. */
-    uint8_t             pad_left_du; /*!< Padding at the left of the 2D transfer. */
-    uint8_t             pad_right_du; /*!< Padding at the right of the 2D transfer. */
+    uint8_t             pad_left_du; /*!< Padding at the left of the 1D/2D transfer. */
+    uint8_t             pad_right_du; /*!< Padding at the right of the 1D/2D transfer. */
     #endif
 
     #if DMA_HW_FIFO_MODE

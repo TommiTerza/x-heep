@@ -73,6 +73,7 @@
             subaddr_mode_en: "no"
             hw_fifo_mode_en: "no"
             zero_padding_en: "no"
+            two_d_en: "yes"
             is_included: "no"
         }
         power_manager: {

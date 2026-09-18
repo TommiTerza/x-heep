@@ -35,7 +35,12 @@ module im2col_spc #(
   import dma_reg_pkg::*;
   `include "dma_conf.svh"
 
-`ifdef ZERO_PADDING_EN
+  /* Im2col requires both DMA 2D addressing and zero padding. */
+`ifndef DMA_2D_EN
+  assign im2col2aopb_req_o = '0;
+  assign im2col_spc_done_int_o = 1'b0;
+  assign reg_rsp_o = '{rdata: '0, ready: 1'b1, error: 1'b1};
+`elsif ZERO_PADDING_EN
   /*_________________________________________________________________________________________________________________________________ */
 
   /* Parameter definition */
@@ -624,5 +629,9 @@ module im2col_spc #(
   /* DMA channel offset */
   assign dma_ch_offset = reg2hw.spc_ch_offset.q;
 
+`else
+  assign im2col2aopb_req_o = '0;
+  assign im2col_spc_done_int_o = 1'b0;
+  assign reg_rsp_o = '{rdata: '0, ready: 1'b1, error: 1'b1};
 `endif
 endmodule

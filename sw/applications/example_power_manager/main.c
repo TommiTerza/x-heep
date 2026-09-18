@@ -67,6 +67,91 @@ void gpio_handler_in()
 //defined in the linker script
 extern uint32_t __ram1_used_limit_plus_4;
 
+static int test_dma_channel_clock_gating(const dma_trans_t *transaction)
+{
+    const uint32_t completion_timeout = 100000;
+    mmio_region_t power_manager_regs = mmio_region_from_addr(POWER_MANAGER_START_ADDRESS);
+    /* The DMA driver retains the transaction pointer after loading it. */
+    static dma_trans_t clock_gating_transaction;
+    clock_gating_transaction = *transaction;
+    clock_gating_transaction.end = DMA_TRANS_END_POLLING;
+
+    for (uint32_t channel = 0; channel < DMA_CH_NUM; channel++)
+    {
+        mmio_region_t dma_regs = mmio_region_from_addr(DMA_START_ADDRESS + DMA_CH_SIZE * channel);
+        /* MCU-GEN emits one consecutive 32-bit clock-gating register per channel. */
+        ptrdiff_t clock_gate_offset = POWER_MANAGER_DMA_CH0_CLK_GATE_REG_OFFSET +
+                                     channel * sizeof(uint32_t);
+
+        if (!dma_is_ready(channel))
+        {
+            PRINTF("DMA channel %u is busy before clock gating\n\r", channel);
+            return EXIT_FAILURE;
+        }
+
+        /* Use a non-starting register: gating an active transfer could lose bus responses. */
+        mmio_region_write32(dma_regs, DMA_SLOT_WAIT_COUNTER_REG_OFFSET, 0x55);
+        if (mmio_region_read32(dma_regs, DMA_SLOT_WAIT_COUNTER_REG_OFFSET) != 0x55)
+        {
+            PRINTF("DMA channel %u register write failed before clock gating\n\r", channel);
+            return EXIT_FAILURE;
+        }
+
+        mmio_region_write32(power_manager_regs, clock_gate_offset, 1);
+        for (uint32_t delay = 0; delay < 100; delay++) asm volatile("nop");
+        mmio_region_write32(dma_regs, DMA_SLOT_WAIT_COUNTER_REG_OFFSET, 0xaa);
+        uint32_t gated_value = mmio_region_read32(dma_regs, DMA_SLOT_WAIT_COUNTER_REG_OFFSET);
+        mmio_region_write32(power_manager_regs, clock_gate_offset, 0);
+
+        if (gated_value != 0x55 ||
+            mmio_region_read32(dma_regs, DMA_SLOT_WAIT_COUNTER_REG_OFFSET) != 0x55)
+        {
+            PRINTF("DMA channel %u did not retain its register while clock gated\n\r", channel);
+            return EXIT_FAILURE;
+        }
+
+        mmio_region_write32(dma_regs, DMA_SLOT_WAIT_COUNTER_REG_OFFSET, 0);
+        if (mmio_region_read32(dma_regs, DMA_SLOT_WAIT_COUNTER_REG_OFFSET) != 0)
+        {
+            PRINTF("DMA channel %u clock did not restart\n\r", channel);
+            return EXIT_FAILURE;
+        }
+
+        for (uint32_t i = 0; i < TEST_DATA_SIZE; i++)
+        {
+            copied_data_4B[i] = ~test_data_4B[i];
+        }
+
+        clock_gating_transaction.channel = channel;
+        if (dma_load_transaction(&clock_gating_transaction) != DMA_CONFIG_OK ||
+            dma_launch(&clock_gating_transaction) != DMA_CONFIG_OK)
+        {
+            PRINTF("DMA channel %u could not launch after clock gating\n\r", channel);
+            return EXIT_FAILURE;
+        }
+
+        uint32_t remaining_polls = completion_timeout;
+        while (!dma_is_ready(channel) && remaining_polls != 0) remaining_polls--;
+        if (remaining_polls == 0)
+        {
+            PRINTF("DMA channel %u timed out after clock gating\n\r", channel);
+            return EXIT_FAILURE;
+        }
+
+        for (uint32_t i = 0; i < TEST_DATA_SIZE; i++)
+        {
+            if (copied_data_4B[i] != test_data_4B[i])
+            {
+                PRINTF("DMA channel %u copy mismatch at word %u after clock gating\n\r", channel, i);
+                return EXIT_FAILURE;
+            }
+        }
+    }
+
+    PRINTF("DMA Channels Clock Gating Test Successful\n\r");
+    return EXIT_SUCCESS;
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -249,6 +334,11 @@ int main(int argc, char *argv[])
             PRINTF("ERROR COPY [%d]: %08x != %08x : %04x != %04x\n", i, &copied_data_4B[i], &test_data_4B[i], copied_data_4B[i], test_data_4B[i]);
             return -1;
         }
+    }
+
+    if (test_dma_channel_clock_gating(&trans) != EXIT_SUCCESS)
+    {
+        return EXIT_FAILURE;
     }
 
 #ifndef TARGET_IS_FPGA

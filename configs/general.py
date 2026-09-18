@@ -8,7 +8,7 @@
 from xheep import XHeep
 from address_map.address_map import AddressMap
 from address_map.address_region import AddressRegion
-from cpu.cv32e20 import cv32e20
+from cpu.cv32e40p import cv32e40p
 from bus_type import BusType
 from debug_ss.debug_ss import DebugSS
 from memory_ss.memory_ss import MemorySS
@@ -48,12 +48,13 @@ from interrupts.interrupts import Interrupts
 
 def config():
     system = XHeep(BusType.NtoM)
-    system.set_cpu(cv32e20(rv32e=False, rv32m="RV32MSlow"))
+    system.set_cpu(cv32e40p())
 
     memory_ss = MemorySS()
-    memory_ss.add_ram_banks([32] * 4)
-    memory_ss.add_linker_section(LinkerSection.by_size("code", 0, 0x00000E800))
-    memory_ss.add_linker_section(LinkerSection("data", 0x00000E800, None))
+    memory_ss.add_ram_banks([32] * 10)
+    # Reserve 192 KiB for code/constants and 64 KiB for writable data.
+    memory_ss.add_linker_section(LinkerSection.by_size("code", 0, 0x00030000))
+    memory_ss.add_linker_section(LinkerSection("data", 0x00030000, None))
     system.set_memory_ss(memory_ss)
 
     system.set_linker_script_config(LinkerScript(stack_size=0x800, heap_size=0x800))
@@ -104,6 +105,7 @@ def config():
             num_master_ports=2,
             num_channels_per_master_port=2,
             fifo_depth=4,
+            two_dim_transfers="yes",
         )
     )
     base_peripheral_domain.add_peripheral(Power_manager(0x00040000))

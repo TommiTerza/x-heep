@@ -21,6 +21,27 @@ The DMA **SDK**, on the other hand, offers user-friendly functions for essential
 
 <br>
 
+## Optional 2D support
+
+Set `two_d_en: "no"` in the DMA HJSON configuration, or use `DMA(two_dim_transfers="no")`
+(or `dma.set_two_d("no")`) in a Python configuration, to build a 1D-only DMA.
+The default is `"yes"` for compatibility with existing configurations.
+
+MCU-GEN emits the RTL define `DMA_2D_EN` only when enabled and the software
+macro `DMA_2D` as 0 or 1. With 2D disabled, the register generator omits
+`SIZE_D2`, `SRC_PTR_INC_D2`, `DST_PTR_INC_D2`, `DIM_CONFIG`, `DIM_INV`,
+`PAD_TOP`, and `PAD_BOTTOM`. Left/right padding remains available when
+`zero_padding_en` is enabled. Regenerate the register headers with the RTL;
+removing registers changes subsequent register offsets.
+
+The driver rejects requests for 2D transfers, transposition, nonzero D2 sizes
+or increments, and top/bottom padding with `DMA_CONFIG_INCOMPATIBLE |
+DMA_CONFIG_CRITICAL_ERROR`, including when optional validation is skipped.
+Transaction fields remain available so unsupported requests can be reported.
+External accelerators that require 2D DMA registers require `two_d_en: "yes"`.
+The im2col SPC example is disabled when DMA 2D support or zero padding is
+disabled; accesses to its registers return a bus error.
+
 ## Structural description
 
 ![DMA subsystem structure](/images/dma_general.png)

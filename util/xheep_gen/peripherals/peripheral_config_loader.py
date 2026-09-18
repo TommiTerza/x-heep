@@ -135,6 +135,7 @@ def _create_dma_peripheral(peripheral_config, offset, length):
     - addr_mode_en: Enable address mode (yes/no)
     - subaddr_mode_en: Enable subaddress mode (yes/no)
     - hw_fifo_mode_en: Enable hardware FIFO mode (yes/no)
+    - two_d_en: Enable 2D transfers and transposition (yes/no, default: "yes")
     - zero_padding_en: Enable zero padding (yes/no)
     - ch_length: Length of each DMA channel (hex string)
     - num_channels: Number of DMA channels (hex string)
@@ -165,6 +166,7 @@ def _create_dma_peripheral(peripheral_config, offset, length):
         subaddr_mode_en = peripheral_config["subaddr_mode_en"]
         hw_fifo_mode_en = peripheral_config["hw_fifo_mode_en"]
         zero_padding_en = peripheral_config["zero_padding_en"]
+        two_d_en = peripheral_config.get("two_d_en", "yes")
 
         # Validate yes/no values
         for param_name, param_value in [
@@ -172,6 +174,7 @@ def _create_dma_peripheral(peripheral_config, offset, length):
             ("subaddr_mode_en", subaddr_mode_en),
             ("hw_fifo_mode_en", hw_fifo_mode_en),
             ("zero_padding_en", zero_padding_en),
+            ("two_d_en", two_d_en),
         ]:
             if param_value not in ["no", "yes"]:
                 raise ValueError(f"{param_name} should be no or yes")
@@ -189,6 +192,7 @@ def _create_dma_peripheral(peripheral_config, offset, length):
         subaddr_mode_en = "no"
         hw_fifo_mode_en = "no"
         zero_padding_en = "no"
+        two_d_en = "no"
         ch_length = int("0x100", 16)
         num_channels = int("0x1", 16)
         num_master_ports = int("0x1", 16)
@@ -208,6 +212,7 @@ def _create_dma_peripheral(peripheral_config, offset, length):
         subaddr_mode=subaddr_mode_en,
         hw_fifo_mode=hw_fifo_mode_en,
         zero_padding=zero_padding_en,
+        two_dim_transfers=two_d_en,
     )
 
 
